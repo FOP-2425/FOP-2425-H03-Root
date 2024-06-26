@@ -1,101 +1,112 @@
 package h03;
+
 import fopbot.Robot;
 
 import java.util.Random;
 
-// Derived class HackingRobot, whose attributes acquire hacking methods for movement in the grid
+/**
+ * The HackingRobot class extends the Robot class and provides additional methods for movement in the grid.
+ * The robot can have different types of movements which can be shuffled.
+ */
 public class HackingRobot extends Robot {
 
-    // Private array "roboterTypes" containing the elements of the enumeration MovementType in alphabetical order
+    /**
+     * Private array "roboterTypes" containing the elements of the enumeration MovementType in alphabetical order.
+     */
     private MovementType[] roboterTypes = {MovementType.DIAGONAL, MovementType.OVERSTEP, MovementType.TELEPORT};
 
-    // Privates String, das den Typ des jeweiligen Roboters enthält
+    /**
+     * Private variable that contains the type of the robot.
+     */
     private MovementType type;
 
-    // Private string containing the type of the robot
+    /**
+     * Constructs a new HackingRobot at the specified coordinates.
+     * The order parameter determines the initial order of the movement types.
+     *
+     * @param x     The x-coordinate of the robot.
+     * @param y     The y-coordinate of the robot.
+     * @param order If true, the movement types are shifted to the right by one index, otherwise to the left by one index.
+     */
     public HackingRobot(int x, int y, boolean order) {
-
-        // Calling the constructor of the base class Robot
         super(x, y);
 
-        // Moving the elements of roboterTypes depending on the value of order
         if (order) {
-
             // Move elements to the right by 1 index
             MovementType lastElement = roboterTypes[roboterTypes.length - 1];
             for (int i = roboterTypes.length - 1; i > 0; i--) {
                 roboterTypes[i] = roboterTypes[i - 1];
             }
-
-            // Correction of the last element of the array
             roboterTypes[0] = lastElement;
         } else {
-
             // Move elements to the left by 1 index
             MovementType firstElement = roboterTypes[0];
             for (int i = 0; i < roboterTypes.length - 1; i++) {
                 roboterTypes[i] = roboterTypes[i + 1];
             }
-
-            // Correction of the first element of the array
             roboterTypes[roboterTypes.length - 1] = firstElement;
         }
 
-        // Assigning the first value of roboterTypes to type
         this.type = roboterTypes[0];
     }
 
-    // Getter method for type
+    /**
+     * Returns the current type of the robot.
+     *
+     * @return The current MovementType of the robot.
+     */
     public MovementType getType() {
         return type;
     }
 
-    // Method that returns the type located 1 index to the right of the current type of the robot
+    /**
+     * Returns the movement type located 1 index to the right of the current type of the robot.
+     *
+     * @return The next MovementType of the robot.
+     */
     public MovementType getNextType() {
-
-        // Initializing the index that iterates over the array of the robot types
         int currentIndex = -1;
-
-        // Iterating over the array of the robot types to find the index of the actual type
         for (int i = 0; i < roboterTypes.length; i++) {
             if (roboterTypes[i] == type) {
                 currentIndex = i;
                 break;
             }
         }
-
-        // Returning the next type to the right
         return roboterTypes[(currentIndex + 1) % roboterTypes.length];
     }
 
-    // Method "shuffle" that can randomly change the type of the robot
-    public boolean shuffle(int itNr) {
-
-        // Initializing of the random function
+    /**
+     * Generates a random number between zero (inclusive) and the specified limit (exclusive).
+     *
+     * @param limit The upper bound (exclusive) for the random number.
+     * @return A random integer between 0 (inclusive) and the specified limit (exclusive).
+     */
+    public int getRandom(int limit) {
         Random random = new Random();
+        return random.nextInt(limit);
+    }
 
-        // Helper variable to store the previous type
+    /**
+     * Randomly changes the type of the robot a specified number of times.
+     *
+     * @param itNr The number of iterations to shuffle the type.
+     * @return True if the type remained the same after shuffling, false otherwise.
+     */
+    public boolean shuffle(int itNr) {
         MovementType previousType = this.type;
-
-        // Iterating itNr times and changing the type of the robot depending of the random generated index
         for (int i = 0; i < itNr; i++) {
-
-            // Randomly generated index for the new type
-            int randomIndex = random.nextInt(roboterTypes.length);
-
-            // Assigning the new type to the robot's type
+            int randomIndex = getRandom(roboterTypes.length);
             this.type = roboterTypes[randomIndex];
         }
 
-        // Check if the type has changed
-        return this.type != previousType;
+        return this.type == previousType;
     }
 
-    // Overloaded method "shuffle" that definitely changes the robot's type
+    /**
+     * Randomly changes the type of the robot until the type is different from the current type.
+     */
     public void shuffle() {
-
-        // Repeating the randomisation until the robot has a new type
-        while (!shuffle(1)) {
+        while (shuffle(1)) {
         }
     }
 }
