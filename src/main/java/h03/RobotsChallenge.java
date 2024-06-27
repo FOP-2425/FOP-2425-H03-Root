@@ -1,5 +1,8 @@
 package h03;
 
+import h03.robots.DoublePowerRobot;
+import h03.robots.MovementType;
+
 /**
  * The {@code RobotsChallenge} class performs a challenge between robots of the {@code DoublePowerRobot} class.
  */
