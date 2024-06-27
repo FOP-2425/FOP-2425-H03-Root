@@ -1,4 +1,4 @@
-package h03;
+package h03.robots;
 
 /**
  * Subclass DoublePowerRobot, which inherits from the {@code HackingRobot} class and allows the robot to have two types simultaneously.

@@ -1,4 +1,4 @@
-package h03;
+package h03.robots;
 
 /**
  * The {@code MovementType} enum represents the different types of movements that a robot can perform.

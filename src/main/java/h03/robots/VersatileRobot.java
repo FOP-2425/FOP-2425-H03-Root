@@ -1,4 +1,4 @@
-package h03;
+package h03.robots;
 
 /**
  * Subclass VersatileRobot, which inherits from the class {@code HackingRobot}.

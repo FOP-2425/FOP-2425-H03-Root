@@ -1,7 +1,6 @@
-package h03;
+package h03.robots;
 
 import fopbot.Robot;
-
 import java.util.Random;
 
 /**
