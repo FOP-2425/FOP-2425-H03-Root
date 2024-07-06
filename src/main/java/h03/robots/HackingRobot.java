@@ -10,9 +10,9 @@ import java.util.Random;
 public class HackingRobot extends Robot {
 
     /**
-     * Private array "roboterTypes" containing the elements of the enumeration MovementType in alphabetical order.
+     * Private array "robotTypes" containing the elements of the enumeration MovementType in alphabetical order.
      */
-    private MovementType[] roboterTypes = {MovementType.DIAGONAL, MovementType.OVERSTEP, MovementType.TELEPORT};
+    private MovementType[] robotTypes = {MovementType.DIAGONAL, MovementType.OVERSTEP, MovementType.TELEPORT};
 
     /**
      * Private variable that contains the type of the robot.
@@ -32,21 +32,21 @@ public class HackingRobot extends Robot {
 
         if (order) {
             // Move elements to the right by 1 index
-            MovementType lastElement = roboterTypes[roboterTypes.length - 1];
-            for (int i = roboterTypes.length - 1; i > 0; i--) {
-                roboterTypes[i] = roboterTypes[i - 1];
+            MovementType lastElement = robotTypes[robotTypes.length - 1];
+            for (int i = robotTypes.length - 1; i > 0; i--) {
+                robotTypes[i] = robotTypes[i - 1];
             }
-            roboterTypes[0] = lastElement;
+            robotTypes[0] = lastElement;
         } else {
             // Move elements to the left by 1 index
-            MovementType firstElement = roboterTypes[0];
-            for (int i = 0; i < roboterTypes.length - 1; i++) {
-                roboterTypes[i] = roboterTypes[i + 1];
+            MovementType firstElement = robotTypes[0];
+            for (int i = 0; i < robotTypes.length - 1; i++) {
+                robotTypes[i] = robotTypes[i + 1];
             }
-            roboterTypes[roboterTypes.length - 1] = firstElement;
+            robotTypes[robotTypes.length - 1] = firstElement;
         }
 
-        this.type = roboterTypes[0];
+        this.type = robotTypes[0];
     }
 
     /**
@@ -65,13 +65,13 @@ public class HackingRobot extends Robot {
      */
     public MovementType getNextType() {
         int currentIndex = -1;
-        for (int i = 0; i < roboterTypes.length; i++) {
-            if (roboterTypes[i] == type) {
+        for (int i = 0; i < robotTypes.length; i++) {
+            if (robotTypes[i] == type) {
                 currentIndex = i;
                 break;
             }
         }
-        return roboterTypes[(currentIndex + 1) % roboterTypes.length];
+        return robotTypes[(currentIndex + 1) % robotTypes.length];
     }
 
     /**
@@ -94,8 +94,8 @@ public class HackingRobot extends Robot {
     public boolean shuffle(int itNr) {
         MovementType previousType = this.type;
         for (int i = 0; i < itNr; i++) {
-            int randomIndex = getRandom(roboterTypes.length);
-            this.type = roboterTypes[randomIndex];
+            int randomIndex = getRandom(robotTypes.length);
+            this.type = robotTypes[randomIndex];
         }
 
         return this.type == previousType;
