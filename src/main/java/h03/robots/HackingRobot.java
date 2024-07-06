@@ -10,9 +10,9 @@ import java.util.Random;
 public class HackingRobot extends Robot {
 
     /**
-     * Private array "robotTypes" containing the elements of the enumeration MovementType in alphabetical order.
+     * Private array "robotTypes" containing the elements of the enumeration MovementType in reverse alphabetical order.
      */
-    private MovementType[] robotTypes = {MovementType.DIAGONAL, MovementType.OVERSTEP, MovementType.TELEPORT};
+    private MovementType[] robotTypes = {MovementType.TELEPORT, MovementType.OVERSTEP, MovementType.DIAGONAL};
 
     /**
      * Private variable that contains the type of the robot.
