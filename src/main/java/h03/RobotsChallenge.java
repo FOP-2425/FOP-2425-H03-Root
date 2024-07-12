@@ -8,9 +8,9 @@ import h03.robots.MovementType;
  */
 public class RobotsChallenge {
 
-    private final DoublePowerRobot[] robots;
-    private final int goal;
-    private final int begin;
+    private DoublePowerRobot[] robots;
+    private int goal;
+    private int begin;
     private final int winThreshold = 2;
 
     /**
