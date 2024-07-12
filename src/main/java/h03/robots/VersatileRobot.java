@@ -18,7 +18,7 @@ public class VersatileRobot extends HackingRobot {
     public VersatileRobot(int x, int y, boolean order, boolean exchange) {
         super(x, y, order);
 
-        if (!exchange) {
+        if (exchange) {
             int aux = x;
             setX(y);
             setY(aux);
