@@ -27,6 +27,33 @@ public class RobotsChallenge {
     }
 
     /**
+     * Calculates the number of steps needed for a robot to reach the goal for the diagonal type.
+     *
+     * @return The number of steps required to reach the goal.
+     */
+    public int calculateStepsDiagonal() {
+        return Math.abs(begin - goal);
+    }
+
+    /**
+     * Calculates the number of steps needed for a robot to reach the goal for the overstep type.
+     *
+     * @return The number of steps required to reach the goal.
+     */
+    public int calculateStepsOverstep() {
+        return (Math.abs(begin - goal) % 2 == 0) ? Math.abs(begin - goal) : Math.abs(begin - goal) + 1;
+    }
+
+    /**
+     * Calculates the number of steps needed for a robot to reach the goal for the teleport type.
+     *
+     * @return The number of steps required to reach the goal.
+     */
+    public int calculateStepsTeleport() {
+        return (Math.abs(begin - goal) % 2 == 0) ? Math.abs(begin - goal) / 2 : (Math.abs(begin - goal) / 2) + 2;
+    }
+    
+    /**
      * Calculates the number of steps needed for a robot to reach the goal based on its movement type.
      *
      * @param type The {@code MovementType} of the robot.
@@ -35,11 +62,11 @@ public class RobotsChallenge {
     public int calculateSteps(MovementType type) {
         int steps = 0;
         if (type == MovementType.DIAGONAL) {
-            steps = Math.abs(begin - goal);
+            steps = calculateStepsDiagonal();
         } else if (type == MovementType.OVERSTEP) {
-            steps = (Math.abs(begin - goal) % 2 == 0) ? Math.abs(begin - goal) : Math.abs(begin - goal) + 1;
+            steps = calculateStepsOverstep();
         } else if (type == MovementType.TELEPORT) {
-            steps = (Math.abs(begin - goal) % 2 == 0) ? Math.abs(begin - goal) / 2 : (Math.abs(begin - goal) / 2) + 2;
+            steps = calculateStepsTeleport();
         }
         return steps;
     }
