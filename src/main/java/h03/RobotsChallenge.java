@@ -8,9 +8,9 @@ import h03.robots.MovementType;
  */
 public class RobotsChallenge {
 
-    private DoublePowerRobot[] robots;
-    private int goal;
-    private int begin;
+    private final DoublePowerRobot[] robots;
+    private final int goal;
+    private final int begin;
     private final int winThreshold = 2;
 
     /**
@@ -52,7 +52,7 @@ public class RobotsChallenge {
     public int calculateStepsTeleport() {
         return (Math.abs(begin - goal) % 2 == 0) ? Math.abs(begin - goal) / 2 : (Math.abs(begin - goal) / 2) + 2;
     }
-    
+
     /**
      * Calculates the number of steps needed for a robot to reach the goal based on its movement type.
      *
@@ -60,15 +60,7 @@ public class RobotsChallenge {
      * @return The number of steps required to reach the goal.
      */
     public int calculateSteps(MovementType type) {
-        int steps = 0;
-        if (type == MovementType.DIAGONAL) {
-            steps = calculateStepsDiagonal();
-        } else if (type == MovementType.OVERSTEP) {
-            steps = calculateStepsOverstep();
-        } else if (type == MovementType.TELEPORT) {
-            steps = calculateStepsTeleport();
-        }
-        return steps;
+        return type == MovementType.DIAGONAL ? calculateStepsDiagonal() : type == MovementType.OVERSTEP ? calculateStepsOverstep() : calculateStepsTeleport();
     }
 
     /**
