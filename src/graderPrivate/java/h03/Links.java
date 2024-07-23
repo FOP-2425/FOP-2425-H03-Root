@@ -1,22 +1,29 @@
 package h03;
 
-import org.tudalgo.algoutils.tutor.general.match.Match;
 import org.tudalgo.algoutils.tutor.general.match.Matcher;
-import org.tudalgo.algoutils.tutor.general.reflections.BasicPackageLink;
-import org.tudalgo.algoutils.tutor.general.reflections.PackageLink;
-import org.tudalgo.algoutils.tutor.general.reflections.TypeLink;
+import org.tudalgo.algoutils.tutor.general.reflections.*;
 
-public class Links {
+import java.util.List;
+
+public final class Links {
+
+    private Links() {}
 
     // TODO: Handle typos in package / class names
+    // TODO: Convert to memoized suppliers
 
     public static final PackageLink BASE_PACKAGE = BasicPackageLink.of("h03");
     public static final PackageLink ROBOTS_PACKAGE = BasicPackageLink.of("h03.robots");
 
-    public static final TypeLink MOVEMENT_TYPE_LINK = ROBOTS_PACKAGE.getType(new Matcher<>() {
-        @Override
-        public <ST extends TypeLink> Match<ST> match(ST object) {
-            return Match.match(object, object.name().equals("MovementType"));
-        }
-    });
+    public static final TypeLink MOVEMENT_TYPE_LINK = ROBOTS_PACKAGE.getType(Matcher.of(typeLink -> typeLink.name().equals("MovementType")));
+
+    public static final TypeLink HACKING_ROBOT_LINK = ROBOTS_PACKAGE.getType(Matcher.of(typeLink -> typeLink.name().equals("HackingRobot")));
+    public static final FieldLink HACKING_ROBOT_TYPE_LINK = HACKING_ROBOT_LINK.getField(Matcher.of(fieldLink -> fieldLink.name().equals("type")));
+    public static final FieldLink HACKING_ROBOT_ROBOT_TYPES_LINK = HACKING_ROBOT_LINK.getField(Matcher.of(fieldLink -> fieldLink.name().equals("robotTypes")));
+    public static final ConstructorLink HACKING_ROBOT_CONSTRUCTOR_LINK = HACKING_ROBOT_LINK.getConstructor(Matcher.of(constructorLink ->
+        constructorLink.typeList()
+            .stream()
+            .map(TypeLink::reflection)
+            .toList()
+            .equals(List.of(int.class, int.class, boolean.class))));
 }
