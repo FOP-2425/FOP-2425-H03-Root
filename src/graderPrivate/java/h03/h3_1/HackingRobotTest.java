@@ -9,7 +9,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sourcegrade.jagr.api.rubric.TestForSubmission;
 import org.tudalgo.algoutils.tutor.general.assertions.Context;
+import org.tudalgo.algoutils.tutor.general.reflections.EnumConstantLink;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
@@ -92,6 +94,67 @@ public class HackingRobotTest {
             HACKING_ROBOT_TYPE_LINK.<Enum<?>>get(hackingRobotInstance).name(),
             context,
             result -> "Value of field type in HackingRobot is incorrect");
+    }
+
+    @Test
+    public void testGetType() {
+        int x = 2;
+        int y = 2;
+        Context.Builder<?> contextBuilder = contextBuilder()
+            .add("x", x)
+            .add("y", y);
+        Object hackingRobotInstance = getHackingRobotInstance(x, y, null, contextBuilder);
+        Context baseContext = contextBuilder.add("HackingRobot instance", hackingRobotInstance).build();
+        Enum<?>[] movementTypeConstants = MOVEMENT_TYPE_LINK.getEnumConstants()
+            .stream()
+            .map(EnumConstantLink::constant)
+            .toArray(Enum[]::new);
+
+        assertEquals(3, movementTypeConstants.length, emptyContext(), result ->
+            "Precondition failed: Number of enum constants in MovementType is incorrect");
+        for (Enum<?> movementTypeConstant : movementTypeConstants) {
+            HACKING_ROBOT_TYPE_LINK.set(hackingRobotInstance, movementTypeConstant);
+            Context context = contextBuilder()
+                .add(baseContext)
+                .add("Field 'type'", movementTypeConstant)
+                .build();
+            assertCallEquals(movementTypeConstant, () -> HACKING_ROBOT_GET_TYPE_LINK.invoke(hackingRobotInstance), context, result ->
+                "The enum constant returned by getType is incorrect");
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {0, 1, 2, 3, 4})
+    public void testGetNextType(int offset) {
+        Enum<?>[] movementTypeConstants = MOVEMENT_TYPE_LINK.getEnumConstants()
+            .stream()
+            .map(EnumConstantLink::constant)
+            .toArray(Enum[]::new);
+        assertEquals(3, movementTypeConstants.length, emptyContext(), result ->
+            "Precondition failed: Number of enum constants in MovementType is incorrect");
+
+        int x = 2;
+        int y = 2;
+        Context.Builder<?> contextBuilder = contextBuilder()
+            .add("x", x)
+            .add("y", y);
+        Object hackingRobotInstance = getHackingRobotInstance(x, y, null, contextBuilder);
+        Context context = contextBuilder
+            .add("HackingRobot instance", hackingRobotInstance)
+            .add("Field 'type'", movementTypeConstants[offset % movementTypeConstants.length])
+            .add("Field 'robotTypes'", movementTypeConstants)
+            .build();
+
+        // Everyone's tough 'til runtime type safety checks show up
+        Object typesafeRobotTypes = Array.newInstance(MOVEMENT_TYPE_LINK.reflection(), movementTypeConstants.length);
+        System.arraycopy(movementTypeConstants, 0, typesafeRobotTypes, 0, movementTypeConstants.length);
+
+        HACKING_ROBOT_TYPE_LINK.set(hackingRobotInstance, movementTypeConstants[offset % movementTypeConstants.length]);
+        HACKING_ROBOT_ROBOT_TYPES_LINK.set(hackingRobotInstance, typesafeRobotTypes);
+        assertCallEquals(movementTypeConstants[(offset + 1) % movementTypeConstants.length],
+            () -> HACKING_ROBOT_GET_NEXT_TYPE_LINK.invoke(hackingRobotInstance),
+            context,
+            result -> "The value returned by getNextType is incorrect");
     }
 
     /**

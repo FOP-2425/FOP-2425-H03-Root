@@ -26,4 +26,10 @@ public final class Links {
             .map(TypeLink::reflection)
             .toList()
             .equals(List.of(int.class, int.class, boolean.class))));
+    public static final MethodLink HACKING_ROBOT_GET_TYPE_LINK = HACKING_ROBOT_LINK.getMethod(Matcher.of(methodLink ->
+        methodLink.name().equals("getType") &&
+        methodLink.typeList().isEmpty()));
+    public static final MethodLink HACKING_ROBOT_GET_NEXT_TYPE_LINK = HACKING_ROBOT_LINK.getMethod(Matcher.of(methodLink ->
+        methodLink.name().equals("getNextType") &&
+        methodLink.typeList().isEmpty()));
 }
