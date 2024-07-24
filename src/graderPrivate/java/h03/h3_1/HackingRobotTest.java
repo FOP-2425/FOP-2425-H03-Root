@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mockito;
 import org.sourcegrade.jagr.api.rubric.TestForSubmission;
 import org.tudalgo.algoutils.tutor.general.assertions.Context;
 
@@ -142,6 +143,34 @@ public class HackingRobotTest {
             () -> HACKING_ROBOT_GET_NEXT_TYPE_LINK.invoke(hackingRobotInstance),
             context,
             result -> "The value returned by getNextType is incorrect");
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {0, 1, 2})
+    public void testShuffle(int index) {
+        Object hackingRobotInstance = Mockito.mock(HACKING_ROBOT_LINK.reflection(), invocation -> {
+            if (invocation.getMethod().equals(HACKING_ROBOT_GET_RANDOM_LINK.reflection())) {
+                return index;
+            } else {
+                return invocation.callRealMethod();
+            }
+        });
+        Enum<?>[] movementTypeConstants = getMovementTypeEnums();
+        Object typesafeRobotTypes = Array.newInstance(MOVEMENT_TYPE_LINK.reflection(), movementTypeConstants.length);
+        System.arraycopy(movementTypeConstants, 0, typesafeRobotTypes, 0, movementTypeConstants.length);
+
+        HACKING_ROBOT_TYPE_LINK.set(hackingRobotInstance, movementTypeConstants[0]);
+        HACKING_ROBOT_ROBOT_TYPES_LINK.set(hackingRobotInstance, typesafeRobotTypes);
+        Context context = contextBuilder()
+            .add("Field 'type'", movementTypeConstants[0])
+            .add("Field 'robotTypes'", movementTypeConstants)
+            .add("getRandom(int) return value", index)
+            .build();
+
+        assertCallEquals(index != 0, () -> HACKING_ROBOT_SHUFFLE_LINK.invoke(hackingRobotInstance, 1), context, result ->
+            "Method 'shuffle(int)' in HackingRobot did not return the expected value");
+        assertEquals(movementTypeConstants[index], HACKING_ROBOT_TYPE_LINK.get(hackingRobotInstance), context, result ->
+            "Field 'type' in HackingRobot was not set to the correct value");
     }
 
     /**
