@@ -5,6 +5,9 @@ import org.tudalgo.algoutils.tutor.general.reflections.*;
 
 import java.util.List;
 
+import static org.tudalgo.algoutils.tutor.general.assertions.Assertions2.assertEquals;
+import static org.tudalgo.algoutils.tutor.general.assertions.Assertions2.emptyContext;
+
 public final class Links {
 
     private Links() {}
@@ -32,4 +35,14 @@ public final class Links {
     public static final MethodLink HACKING_ROBOT_GET_NEXT_TYPE_LINK = HACKING_ROBOT_LINK.getMethod(Matcher.of(methodLink ->
         methodLink.name().equals("getNextType") &&
         methodLink.typeList().isEmpty()));
+
+    public static Enum<?>[] getMovementTypeEnums() {
+        Enum<?>[] movementTypeConstants = MOVEMENT_TYPE_LINK.getEnumConstants()
+            .stream()
+            .map(EnumConstantLink::constant)
+            .toArray(Enum[]::new);
+        assertEquals(3, movementTypeConstants.length, emptyContext(), result ->
+            "Precondition failed: Number of enum constants in MovementType is incorrect");
+        return movementTypeConstants;
+    }
 }

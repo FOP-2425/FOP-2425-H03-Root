@@ -9,7 +9,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sourcegrade.jagr.api.rubric.TestForSubmission;
 import org.tudalgo.algoutils.tutor.general.assertions.Context;
-import org.tudalgo.algoutils.tutor.general.reflections.EnumConstantLink;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Modifier;
@@ -105,14 +104,8 @@ public class HackingRobotTest {
             .add("y", y);
         Object hackingRobotInstance = getHackingRobotInstance(x, y, null, contextBuilder);
         Context baseContext = contextBuilder.add("HackingRobot instance", hackingRobotInstance).build();
-        Enum<?>[] movementTypeConstants = MOVEMENT_TYPE_LINK.getEnumConstants()
-            .stream()
-            .map(EnumConstantLink::constant)
-            .toArray(Enum[]::new);
 
-        assertEquals(3, movementTypeConstants.length, emptyContext(), result ->
-            "Precondition failed: Number of enum constants in MovementType is incorrect");
-        for (Enum<?> movementTypeConstant : movementTypeConstants) {
+        for (Enum<?> movementTypeConstant : getMovementTypeEnums()) {
             HACKING_ROBOT_TYPE_LINK.set(hackingRobotInstance, movementTypeConstant);
             Context context = contextBuilder()
                 .add(baseContext)
@@ -126,19 +119,13 @@ public class HackingRobotTest {
     @ParameterizedTest
     @ValueSource(ints = {0, 1, 2, 3, 4})
     public void testGetNextType(int offset) {
-        Enum<?>[] movementTypeConstants = MOVEMENT_TYPE_LINK.getEnumConstants()
-            .stream()
-            .map(EnumConstantLink::constant)
-            .toArray(Enum[]::new);
-        assertEquals(3, movementTypeConstants.length, emptyContext(), result ->
-            "Precondition failed: Number of enum constants in MovementType is incorrect");
-
         int x = 2;
         int y = 2;
         Context.Builder<?> contextBuilder = contextBuilder()
             .add("x", x)
             .add("y", y);
         Object hackingRobotInstance = getHackingRobotInstance(x, y, null, contextBuilder);
+        Enum<?>[] movementTypeConstants = getMovementTypeEnums();
         Context context = contextBuilder
             .add("HackingRobot instance", hackingRobotInstance)
             .add("Field 'type'", movementTypeConstants[offset % movementTypeConstants.length])
