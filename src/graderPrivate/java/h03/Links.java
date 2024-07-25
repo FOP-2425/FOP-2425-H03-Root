@@ -35,14 +35,17 @@ public final class Links {
     public static final MethodLink HACKING_ROBOT_GET_NEXT_TYPE_LINK = HACKING_ROBOT_LINK.getMethod(Matcher.of(methodLink ->
         methodLink.name().equals("getNextType") &&
         methodLink.typeList().isEmpty()));
-    public static final MethodLink HACKING_ROBOT_SHUFFLE_LINK = HACKING_ROBOT_LINK.getMethod(Matcher.of(methodLink ->
+    public static final MethodLink HACKING_ROBOT_GET_RANDOM_LINK = HACKING_ROBOT_LINK.getMethod(Matcher.of(methodLink ->
+        methodLink.name().equals("getRandom") &&
+            methodLink.typeList().size() == 1 &&
+            methodLink.typeList().getFirst().reflection() == int.class));
+    public static final MethodLink HACKING_ROBOT_SHUFFLE1_LINK = HACKING_ROBOT_LINK.getMethod(Matcher.of(methodLink ->
         methodLink.name().equals("shuffle") &&
         methodLink.typeList().size() == 1 &&
         methodLink.typeList().getFirst().reflection() == int.class));
-    public static final MethodLink HACKING_ROBOT_GET_RANDOM_LINK = HACKING_ROBOT_LINK.getMethod(Matcher.of(methodLink ->
-        methodLink.name().equals("getRandom") &&
-        methodLink.typeList().size() == 1 &&
-        methodLink.typeList().getFirst().reflection() == int.class));
+    public static final MethodLink HACKING_ROBOT_SHUFFLE2_LINK = HACKING_ROBOT_LINK.getMethod(Matcher.of(methodLink ->
+        methodLink.name().equals("shuffle") &&
+        methodLink.typeList().isEmpty()));
 
     public static Enum<?>[] getMovementTypeEnums() {
         Enum<?>[] movementTypeConstants = MOVEMENT_TYPE_LINK.getEnumConstants()

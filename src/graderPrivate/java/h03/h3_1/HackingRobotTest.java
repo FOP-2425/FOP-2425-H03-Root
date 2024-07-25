@@ -14,6 +14,7 @@ import org.tudalgo.algoutils.tutor.general.assertions.Context;
 import java.lang.reflect.Array;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -145,9 +146,45 @@ public class HackingRobotTest {
             result -> "The value returned by getNextType is incorrect");
     }
 
+    @Test
+    public void testGetRandom() throws Throwable {
+        // Header
+        assertTrue((HACKING_ROBOT_GET_RANDOM_LINK.modifiers() & Modifier.PUBLIC) != 0, emptyContext(), result ->
+            "Method getRandom(int) in HackingRobot was not declared public");
+        assertEquals(int.class, HACKING_ROBOT_GET_RANDOM_LINK.returnType().reflection(), emptyContext(), result ->
+            "Method getRandom(int) has incorrect return type");
+
+        // Code
+        Object hackingRobotInstance = Mockito.mock(HACKING_ROBOT_LINK.reflection(), invocation -> {
+            if (invocation.getMethod().equals(HACKING_ROBOT_GET_RANDOM_LINK.reflection())) {
+                return invocation.callRealMethod();
+            } else {
+                return Mockito.RETURNS_DEFAULTS.answer(invocation);
+            }
+        });
+        List<Integer> returnedInts = new LinkedList<>();
+        for (int i = 50; i <= 100; i++) {
+            int result = HACKING_ROBOT_GET_RANDOM_LINK.invoke(hackingRobotInstance, i);
+            final int finalI = i;
+            assertTrue(result >= 0 && result < i, contextBuilder().add("limit", i).build(), r ->
+                "Result of getRandom(%d) is not within bounds [0, %d]".formatted(finalI, finalI - 1));
+            returnedInts.add(result);
+        }
+
+        assertTrue(returnedInts.stream().anyMatch(i -> i >= 3), emptyContext(), result ->
+            "50 invocations of getRandom(int) didn't return any number > 2, which is extremely unlikely");
+    }
+
     @ParameterizedTest
     @ValueSource(ints = {0, 1, 2})
-    public void testShuffle(int index) {
+    public void testShuffle1(int index) {
+        // Header
+        assertTrue((HACKING_ROBOT_SHUFFLE1_LINK.modifiers() & Modifier.PUBLIC) != 0, emptyContext(), result ->
+            "Method shuffle(int) in HackingRobot was not declared public");
+        assertEquals(boolean.class, HACKING_ROBOT_SHUFFLE1_LINK.returnType().reflection(), emptyContext(), result ->
+            "Method shuffle(int) has incorrect return type");
+
+        // Code
         Object hackingRobotInstance = Mockito.mock(HACKING_ROBOT_LINK.reflection(), invocation -> {
             if (invocation.getMethod().equals(HACKING_ROBOT_GET_RANDOM_LINK.reflection())) {
                 return index;
@@ -167,7 +204,7 @@ public class HackingRobotTest {
             .add("getRandom(int) return value", index)
             .build();
 
-        assertCallEquals(index != 0, () -> HACKING_ROBOT_SHUFFLE_LINK.invoke(hackingRobotInstance, 1), context, result ->
+        assertCallEquals(index != 0, () -> HACKING_ROBOT_SHUFFLE1_LINK.invoke(hackingRobotInstance, 1), context, result ->
             "Method 'shuffle(int)' in HackingRobot did not return the expected value");
         assertEquals(movementTypeConstants[index], HACKING_ROBOT_TYPE_LINK.get(hackingRobotInstance), context, result ->
             "Field 'type' in HackingRobot was not set to the correct value");
