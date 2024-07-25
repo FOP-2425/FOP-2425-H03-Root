@@ -16,6 +16,7 @@ import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import static h03.Links.*;
@@ -155,13 +156,7 @@ public class HackingRobotTest {
             "Method getRandom(int) has incorrect return type");
 
         // Code
-        Object hackingRobotInstance = Mockito.mock(HACKING_ROBOT_LINK.reflection(), invocation -> {
-            if (invocation.getMethod().equals(HACKING_ROBOT_GET_RANDOM_LINK.reflection())) {
-                return invocation.callRealMethod();
-            } else {
-                return Mockito.RETURNS_DEFAULTS.answer(invocation);
-            }
-        });
+        Object hackingRobotInstance = Mockito.mock(HACKING_ROBOT_LINK.reflection(), Mockito.CALLS_REAL_METHODS);
         List<Integer> returnedInts = new LinkedList<>();
         for (int i = 50; i <= 100; i++) {
             int result = HACKING_ROBOT_GET_RANDOM_LINK.invoke(hackingRobotInstance, i);
@@ -208,6 +203,30 @@ public class HackingRobotTest {
             "Method 'shuffle(int)' in HackingRobot did not return the expected value");
         assertEquals(movementTypeConstants[index], HACKING_ROBOT_TYPE_LINK.get(hackingRobotInstance), context, result ->
             "Field 'type' in HackingRobot was not set to the correct value");
+    }
+
+    @Test
+    public void testShuffle2() {
+        // Header
+        assertTrue((HACKING_ROBOT_SHUFFLE2_LINK.modifiers() & Modifier.PUBLIC) != 0, emptyContext(), result ->
+            "Method shuffle() in HackingRobot was not declared public");
+        assertEquals(void.class, HACKING_ROBOT_SHUFFLE2_LINK.returnType().reflection(), emptyContext(), result ->
+            "Method shuffle() has incorrect return type");
+
+        // Code
+        int limit = 5;
+        AtomicInteger counter = new AtomicInteger(0);
+        Object hackingRobotInstance = Mockito.mock(HACKING_ROBOT_LINK.reflection(), invocation -> {
+            if (invocation.getMethod().equals(HACKING_ROBOT_SHUFFLE1_LINK.reflection())) {
+                return counter.incrementAndGet() >= limit;
+            } else {
+                return invocation.callRealMethod();
+            }
+        });
+        call(() -> HACKING_ROBOT_SHUFFLE2_LINK.invoke(hackingRobotInstance), emptyContext(), result ->
+            "An exception occurred while invoking shuffle() in HackingRobot");
+        assertEquals(limit, counter.get(), emptyContext(), result ->
+            "Method shuffle() in HackingRobot did not return after shuffle(int) returned true / was invoked %d times".formatted(limit));
     }
 
     /**
