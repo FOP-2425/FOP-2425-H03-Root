@@ -32,26 +32,26 @@ public class HackingRobotTest {
 
     @Test
     public void testClassHeader() {
-        assertTrue((HACKING_ROBOT_LINK.modifiers() & Modifier.PUBLIC) != 0, emptyContext(), result ->
+        assertTrue((HACKING_ROBOT_LINK.get().modifiers() & Modifier.PUBLIC) != 0, emptyContext(), result ->
             "Class HackingRobot is not declared public");
-        assertEquals(Robot.class, HACKING_ROBOT_LINK.superType().reflection(), emptyContext(), result ->
+        assertEquals(Robot.class, HACKING_ROBOT_LINK.get().superType().reflection(), emptyContext(), result ->
             "Class HackingRobot does not have correct superclass");
     }
 
     @Test
     public void testFields() {
-        assertTrue((HACKING_ROBOT_TYPE_LINK.modifiers() & Modifier.PRIVATE) != 0, emptyContext(), result ->
+        assertTrue((HACKING_ROBOT_TYPE_LINK.get().modifiers() & Modifier.PRIVATE) != 0, emptyContext(), result ->
             "Field type in HackingRobot is not declared private");
-        assertFalse((HACKING_ROBOT_TYPE_LINK.modifiers() & Modifier.STATIC) != 0, emptyContext(), result ->
+        assertFalse((HACKING_ROBOT_TYPE_LINK.get().modifiers() & Modifier.STATIC) != 0, emptyContext(), result ->
             "Field type in HackingRobot is declared static");
-        assertEquals(MOVEMENT_TYPE_LINK.reflection(), HACKING_ROBOT_TYPE_LINK.type().reflection(), emptyContext(), result ->
+        assertEquals(MOVEMENT_TYPE_LINK.get().reflection(), HACKING_ROBOT_TYPE_LINK.get().type().reflection(), emptyContext(), result ->
             "Field type in HackingRobot does not have correct type");
 
-        assertTrue((HACKING_ROBOT_ROBOT_TYPES_LINK.modifiers() & Modifier.PRIVATE) != 0, emptyContext(), result ->
+        assertTrue((HACKING_ROBOT_ROBOT_TYPES_LINK.get().modifiers() & Modifier.PRIVATE) != 0, emptyContext(), result ->
             "Field robotTypes in HackingRobot is not declared private");
-        assertFalse((HACKING_ROBOT_ROBOT_TYPES_LINK.modifiers() & Modifier.STATIC) != 0, emptyContext(), result ->
+        assertFalse((HACKING_ROBOT_ROBOT_TYPES_LINK.get().modifiers() & Modifier.STATIC) != 0, emptyContext(), result ->
             "Field robotTypes in HackingRobot is declared static");
-        assertEquals(MOVEMENT_TYPE_LINK.reflection().arrayType(), HACKING_ROBOT_ROBOT_TYPES_LINK.type().reflection(), emptyContext(), result ->
+        assertEquals(MOVEMENT_TYPE_LINK.get().reflection().arrayType(), HACKING_ROBOT_ROBOT_TYPES_LINK.get().type().reflection(), emptyContext(), result ->
             "Field robotTypes in HackingRobot does not have correct type");
 
         Context.Builder<?> contextBuilder = contextBuilder()
@@ -59,7 +59,7 @@ public class HackingRobotTest {
             .add("y", 0);
         Object hackingRobotInstance = getHackingRobotInstance(0, 0, null, contextBuilder);
         List<String> expectedRobotTypes = List.of("TELEPORT", "OVERSTEP", "DIAGONAL");
-        List<String> actualRobotTypes = Arrays.stream(HACKING_ROBOT_ROBOT_TYPES_LINK.<Enum<?>[]>get(hackingRobotInstance))
+        List<String> actualRobotTypes = Arrays.stream(HACKING_ROBOT_ROBOT_TYPES_LINK.get().<Enum<?>[]>get(hackingRobotInstance))
             .map(Enum::name)
             .toList();
         Context context = contextBuilder.add("HackingRobot instance", hackingRobotInstance).build();
@@ -87,13 +87,13 @@ public class HackingRobotTest {
         assertEquals(y, hackingRobotInstance.getY(), context, result ->
             "Incorrect value for parameter y passed to super constructor");
         assertEquals(expectedRobotTypes,
-            Arrays.stream(HACKING_ROBOT_ROBOT_TYPES_LINK.<Enum<?>[]>get(hackingRobotInstance))
+            Arrays.stream(HACKING_ROBOT_ROBOT_TYPES_LINK.get().<Enum<?>[]>get(hackingRobotInstance))
                 .map(Enum::name)
                 .toList(),
             context,
             result -> "The values of array robotTypes in HackingRobot were not shifted correctly");
         assertEquals(expectedRobotTypes.getFirst(),
-            HACKING_ROBOT_TYPE_LINK.<Enum<?>>get(hackingRobotInstance).name(),
+            HACKING_ROBOT_TYPE_LINK.get().<Enum<?>>get(hackingRobotInstance).name(),
             context,
             result -> "Value of field type in HackingRobot is incorrect");
     }
@@ -109,12 +109,12 @@ public class HackingRobotTest {
         Context baseContext = contextBuilder.add("HackingRobot instance", hackingRobotInstance).build();
 
         for (Enum<?> movementTypeConstant : getMovementTypeEnums()) {
-            HACKING_ROBOT_TYPE_LINK.set(hackingRobotInstance, movementTypeConstant);
+            HACKING_ROBOT_TYPE_LINK.get().set(hackingRobotInstance, movementTypeConstant);
             Context context = contextBuilder()
                 .add(baseContext)
                 .add("Field 'type'", movementTypeConstant)
                 .build();
-            assertCallEquals(movementTypeConstant, () -> HACKING_ROBOT_GET_TYPE_LINK.invoke(hackingRobotInstance), context, result ->
+            assertCallEquals(movementTypeConstant, () -> HACKING_ROBOT_GET_TYPE_LINK.get().invoke(hackingRobotInstance), context, result ->
                 "The enum constant returned by getType is incorrect");
         }
     }
@@ -136,13 +136,13 @@ public class HackingRobotTest {
             .build();
 
         // Everyone's tough 'til runtime type safety checks show up
-        Object typesafeRobotTypes = Array.newInstance(MOVEMENT_TYPE_LINK.reflection(), movementTypeConstants.length);
+        Object typesafeRobotTypes = Array.newInstance(MOVEMENT_TYPE_LINK.get().reflection(), movementTypeConstants.length);
         System.arraycopy(movementTypeConstants, 0, typesafeRobotTypes, 0, movementTypeConstants.length);
 
-        HACKING_ROBOT_TYPE_LINK.set(hackingRobotInstance, movementTypeConstants[offset % movementTypeConstants.length]);
-        HACKING_ROBOT_ROBOT_TYPES_LINK.set(hackingRobotInstance, typesafeRobotTypes);
+        HACKING_ROBOT_TYPE_LINK.get().set(hackingRobotInstance, movementTypeConstants[offset % movementTypeConstants.length]);
+        HACKING_ROBOT_ROBOT_TYPES_LINK.get().set(hackingRobotInstance, typesafeRobotTypes);
         assertCallEquals(movementTypeConstants[(offset + 1) % movementTypeConstants.length],
-            () -> HACKING_ROBOT_GET_NEXT_TYPE_LINK.invoke(hackingRobotInstance),
+            () -> HACKING_ROBOT_GET_NEXT_TYPE_LINK.get().invoke(hackingRobotInstance),
             context,
             result -> "The value returned by getNextType is incorrect");
     }
@@ -150,16 +150,16 @@ public class HackingRobotTest {
     @Test
     public void testGetRandom() throws Throwable {
         // Header
-        assertTrue((HACKING_ROBOT_GET_RANDOM_LINK.modifiers() & Modifier.PUBLIC) != 0, emptyContext(), result ->
+        assertTrue((HACKING_ROBOT_GET_RANDOM_LINK.get().modifiers() & Modifier.PUBLIC) != 0, emptyContext(), result ->
             "Method getRandom(int) in HackingRobot was not declared public");
-        assertEquals(int.class, HACKING_ROBOT_GET_RANDOM_LINK.returnType().reflection(), emptyContext(), result ->
+        assertEquals(int.class, HACKING_ROBOT_GET_RANDOM_LINK.get().returnType().reflection(), emptyContext(), result ->
             "Method getRandom(int) has incorrect return type");
 
         // Code
-        Object hackingRobotInstance = Mockito.mock(HACKING_ROBOT_LINK.reflection(), Mockito.CALLS_REAL_METHODS);
+        Object hackingRobotInstance = Mockito.mock(HACKING_ROBOT_LINK.get().reflection(), Mockito.CALLS_REAL_METHODS);
         List<Integer> returnedInts = new LinkedList<>();
         for (int i = 50; i <= 100; i++) {
-            int result = HACKING_ROBOT_GET_RANDOM_LINK.invoke(hackingRobotInstance, i);
+            int result = HACKING_ROBOT_GET_RANDOM_LINK.get().invoke(hackingRobotInstance, i);
             final int finalI = i;
             assertTrue(result >= 0 && result < i, contextBuilder().add("limit", i).build(), r ->
                 "Result of getRandom(%d) is not within bounds [0, %d]".formatted(finalI, finalI - 1));
@@ -174,56 +174,56 @@ public class HackingRobotTest {
     @ValueSource(ints = {0, 1, 2})
     public void testShuffle1(int index) {
         // Header
-        assertTrue((HACKING_ROBOT_SHUFFLE1_LINK.modifiers() & Modifier.PUBLIC) != 0, emptyContext(), result ->
+        assertTrue((HACKING_ROBOT_SHUFFLE1_LINK.get().modifiers() & Modifier.PUBLIC) != 0, emptyContext(), result ->
             "Method shuffle(int) in HackingRobot was not declared public");
-        assertEquals(boolean.class, HACKING_ROBOT_SHUFFLE1_LINK.returnType().reflection(), emptyContext(), result ->
+        assertEquals(boolean.class, HACKING_ROBOT_SHUFFLE1_LINK.get().returnType().reflection(), emptyContext(), result ->
             "Method shuffle(int) has incorrect return type");
 
         // Code
-        Object hackingRobotInstance = Mockito.mock(HACKING_ROBOT_LINK.reflection(), invocation -> {
-            if (invocation.getMethod().equals(HACKING_ROBOT_GET_RANDOM_LINK.reflection())) {
+        Object hackingRobotInstance = Mockito.mock(HACKING_ROBOT_LINK.get().reflection(), invocation -> {
+            if (invocation.getMethod().equals(HACKING_ROBOT_GET_RANDOM_LINK.get().reflection())) {
                 return index;
             } else {
                 return invocation.callRealMethod();
             }
         });
         Enum<?>[] movementTypeConstants = getMovementTypeEnums();
-        Object typesafeRobotTypes = Array.newInstance(MOVEMENT_TYPE_LINK.reflection(), movementTypeConstants.length);
+        Object typesafeRobotTypes = Array.newInstance(MOVEMENT_TYPE_LINK.get().reflection(), movementTypeConstants.length);
         System.arraycopy(movementTypeConstants, 0, typesafeRobotTypes, 0, movementTypeConstants.length);
 
-        HACKING_ROBOT_TYPE_LINK.set(hackingRobotInstance, movementTypeConstants[0]);
-        HACKING_ROBOT_ROBOT_TYPES_LINK.set(hackingRobotInstance, typesafeRobotTypes);
+        HACKING_ROBOT_TYPE_LINK.get().set(hackingRobotInstance, movementTypeConstants[0]);
+        HACKING_ROBOT_ROBOT_TYPES_LINK.get().set(hackingRobotInstance, typesafeRobotTypes);
         Context context = contextBuilder()
             .add("Field 'type'", movementTypeConstants[0])
             .add("Field 'robotTypes'", movementTypeConstants)
             .add("getRandom(int) return value", index)
             .build();
 
-        assertCallEquals(index != 0, () -> HACKING_ROBOT_SHUFFLE1_LINK.invoke(hackingRobotInstance, 1), context, result ->
+        assertCallEquals(index != 0, () -> HACKING_ROBOT_SHUFFLE1_LINK.get().invoke(hackingRobotInstance, 1), context, result ->
             "Method 'shuffle(int)' in HackingRobot did not return the expected value");
-        assertEquals(movementTypeConstants[index], HACKING_ROBOT_TYPE_LINK.get(hackingRobotInstance), context, result ->
+        assertEquals(movementTypeConstants[index], HACKING_ROBOT_TYPE_LINK.get().get(hackingRobotInstance), context, result ->
             "Field 'type' in HackingRobot was not set to the correct value");
     }
 
     @Test
     public void testShuffle2() {
         // Header
-        assertTrue((HACKING_ROBOT_SHUFFLE2_LINK.modifiers() & Modifier.PUBLIC) != 0, emptyContext(), result ->
+        assertTrue((HACKING_ROBOT_SHUFFLE2_LINK.get().modifiers() & Modifier.PUBLIC) != 0, emptyContext(), result ->
             "Method shuffle() in HackingRobot was not declared public");
-        assertEquals(void.class, HACKING_ROBOT_SHUFFLE2_LINK.returnType().reflection(), emptyContext(), result ->
+        assertEquals(void.class, HACKING_ROBOT_SHUFFLE2_LINK.get().returnType().reflection(), emptyContext(), result ->
             "Method shuffle() has incorrect return type");
 
         // Code
         int limit = 5;
         AtomicInteger counter = new AtomicInteger(0);
-        Object hackingRobotInstance = Mockito.mock(HACKING_ROBOT_LINK.reflection(), invocation -> {
-            if (invocation.getMethod().equals(HACKING_ROBOT_SHUFFLE1_LINK.reflection())) {
+        Object hackingRobotInstance = Mockito.mock(HACKING_ROBOT_LINK.get().reflection(), invocation -> {
+            if (invocation.getMethod().equals(HACKING_ROBOT_SHUFFLE1_LINK.get().reflection())) {
                 return counter.incrementAndGet() >= limit;
             } else {
                 return invocation.callRealMethod();
             }
         });
-        call(() -> HACKING_ROBOT_SHUFFLE2_LINK.invoke(hackingRobotInstance), emptyContext(), result ->
+        call(() -> HACKING_ROBOT_SHUFFLE2_LINK.get().invoke(hackingRobotInstance), emptyContext(), result ->
             "An exception occurred while invoking shuffle() in HackingRobot");
         assertEquals(limit, counter.get(), emptyContext(), result ->
             "Method shuffle() in HackingRobot did not return after shuffle(int) returned true / was invoked %d times".formatted(limit));
@@ -249,19 +249,19 @@ public class HackingRobotTest {
 
         if (order != null) {
             try {
-                hackingRobotInstance = HACKING_ROBOT_CONSTRUCTOR_LINK.invoke(x, y, order);
+                hackingRobotInstance = HACKING_ROBOT_CONSTRUCTOR_LINK.get().invoke(x, y, order);
                 appendContext.accept(order);
             } catch (Throwable t) {
                 throw new RuntimeException(t);
             }
         } else {
             try {
-                hackingRobotInstance = HACKING_ROBOT_CONSTRUCTOR_LINK.invoke(x, y, false);
+                hackingRobotInstance = HACKING_ROBOT_CONSTRUCTOR_LINK.get().invoke(x, y, false);
                 appendContext.accept(false);
             } catch (Throwable t1) {
                 System.err.printf("Could not invoke HackingRobot's constructor with params (%d, %d, false):%n%s%n", x, y, t1.getMessage());
                 try {
-                    hackingRobotInstance = HACKING_ROBOT_CONSTRUCTOR_LINK.invoke(x, y, true);
+                    hackingRobotInstance = HACKING_ROBOT_CONSTRUCTOR_LINK.get().invoke(x, y, true);
                     appendContext.accept(true);
                 } catch (Throwable t2) {
                     System.err.printf("Could not invoke HackingRobot's constructor with params (%d, %d, true):%n%s%n", x, y, t2.getMessage());

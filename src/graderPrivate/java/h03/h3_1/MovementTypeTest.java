@@ -17,7 +17,7 @@ public class MovementTypeTest {
     @Test
     public void testEnumConstants() {
         Set<String> expected = Set.of("DIAGONAL", "OVERSTEP", "TELEPORT");
-        Set<String> actual = MOVEMENT_TYPE_LINK.getEnumConstants()
+        Set<String> actual = MOVEMENT_TYPE_LINK.get().getEnumConstants()
             .stream()
             .map(WithName::name)
             .collect(Collectors.toSet());

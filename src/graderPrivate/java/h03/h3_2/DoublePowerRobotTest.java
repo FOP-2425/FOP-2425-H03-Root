@@ -20,21 +20,21 @@ public class DoublePowerRobotTest {
 
     @Test
     public void testClassHeader() {
-        assertTrue((DOUBLE_POWER_ROBOT_LINK.modifiers() & Modifier.PUBLIC) != 0, emptyContext(), result ->
+        assertTrue((DOUBLE_POWER_ROBOT_LINK.get().modifiers() & Modifier.PUBLIC) != 0, emptyContext(), result ->
             "Class DoublePowerRobot is not declared public");
-        assertEquals(HACKING_ROBOT_LINK.reflection(), DOUBLE_POWER_ROBOT_LINK.superType().reflection(), emptyContext(), result ->
+        assertEquals(HACKING_ROBOT_LINK.get().reflection(), DOUBLE_POWER_ROBOT_LINK.get().superType().reflection(), emptyContext(), result ->
             "Class DoublePowerRobot does not have correct superclass");
     }
 
     @Test
     public void testFields() {
-        assertEquals(MOVEMENT_TYPE_LINK.reflection().arrayType(), DOUBLE_POWER_ROBOT_DOUBLE_POWER_TYPES_LINK.type().reflection(), emptyContext(), result ->
+        assertEquals(MOVEMENT_TYPE_LINK.get().reflection().arrayType(), DOUBLE_POWER_ROBOT_DOUBLE_POWER_TYPES_LINK.get().type().reflection(), emptyContext(), result ->
             "Field doublePowerTypes in DoublePowerRobot does not have correct type");
     }
 
     @Test
     public void testConstructor() {
-        assertTrue((DOUBLE_POWER_ROBOT_CONSTRUCTOR_LINK.modifiers() & Modifier.PUBLIC) != 0, emptyContext(), result ->
+        assertTrue((DOUBLE_POWER_ROBOT_CONSTRUCTOR_LINK.get().modifiers() & Modifier.PUBLIC) != 0, emptyContext(), result ->
             "Constructor in DoublePowerRobot is not declared public");
 
         // TODO: constructors == pain. Bytecode transformations; there is no other way to unit-test this
