@@ -16,7 +16,18 @@ jagr {
             // lastName.set("")
         }
     }
+    graders {
+        val graderPrivate by creating {
+            graderName.set("H03-Private")
+            rubricProviderName.set("h03.H03_RubricProvider")
+            configureDependencies{
+                implementation(libs.algoutils.tutor)
+            }
+        }
+    }
 }
+
+
 
 dependencies {
     implementation(libs.annotations)
