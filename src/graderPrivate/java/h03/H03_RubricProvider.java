@@ -1,5 +1,6 @@
 package h03;
 
+import h03.h3_1.MovementTypeTest;
 import org.sourcegrade.jagr.api.rubric.*;
 
 import static org.tudalgo.algoutils.tutor.general.jagr.RubricUtils.criterion;
@@ -11,7 +12,8 @@ public class H03_RubricProvider implements RubricProvider {
         .maxPoints(1)
         .addChildCriteria(
             criterion(
-                "Die Enumeration MovementType ist korrekt deklariert und umfasst DIAGONAL, OVERSTEP, TELEPORT."
+                "Die Enumeration MovementType ist korrekt deklariert und umfasst DIAGONAL, OVERSTEP, TELEPORT.",
+                JUnitTestRef.ofMethod(() -> MovementTypeTest.class.getDeclaredMethod("testEnumConstants"))
             )
         )
         .build();
