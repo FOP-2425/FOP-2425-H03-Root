@@ -10,6 +10,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.sourcegrade.jagr.api.rubric.TestForSubmission;
 import org.tudalgo.algoutils.tutor.general.assertions.Context;
+import org.tudalgo.algoutils.tutor.general.reflections.EnumConstantLink;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Modifier;
@@ -108,7 +109,8 @@ public class HackingRobotTest {
         Object hackingRobotInstance = getHackingRobotInstance(x, y, null, contextBuilder);
         Context baseContext = contextBuilder.add("HackingRobot instance", hackingRobotInstance).build();
 
-        for (Enum<?> movementTypeConstant : getMovementTypeEnums()) {
+        for (EnumConstantLink movementTypeConstantLink : MOVEMENT_TYPE_CONSTANTS.get()) {
+            Enum<?> movementTypeConstant = movementTypeConstantLink.constant();
             HACKING_ROBOT_TYPE_LINK.get().set(hackingRobotInstance, movementTypeConstant);
             Context context = contextBuilder()
                 .add(baseContext)
@@ -128,7 +130,10 @@ public class HackingRobotTest {
             .add("x", x)
             .add("y", y);
         Object hackingRobotInstance = getHackingRobotInstance(x, y, null, contextBuilder);
-        Enum<?>[] movementTypeConstants = getMovementTypeEnums();
+        EnumConstantLink[] movementTypeConstantsLinks = MOVEMENT_TYPE_CONSTANTS.get();
+        Enum<?>[] movementTypeConstants = Arrays.stream(movementTypeConstantsLinks)
+            .map(EnumConstantLink::constant)
+            .toArray(Enum[]::new);
         Context context = contextBuilder
             .add("HackingRobot instance", hackingRobotInstance)
             .add("Field 'type'", movementTypeConstants[offset % movementTypeConstants.length])
@@ -187,7 +192,10 @@ public class HackingRobotTest {
                 return invocation.callRealMethod();
             }
         });
-        Enum<?>[] movementTypeConstants = getMovementTypeEnums();
+        EnumConstantLink[] movementTypeConstantLinks = MOVEMENT_TYPE_CONSTANTS.get();
+        Enum<?>[] movementTypeConstants = Arrays.stream(movementTypeConstantLinks)
+            .map(EnumConstantLink::constant)
+            .toArray(Enum[]::new);
         Object typesafeRobotTypes = Array.newInstance(MOVEMENT_TYPE_LINK.get().reflection(), movementTypeConstants.length);
         System.arraycopy(movementTypeConstants, 0, typesafeRobotTypes, 0, movementTypeConstants.length);
 
