@@ -55,18 +55,18 @@ public class HackingRobotTest {
         assertEquals(MOVEMENT_TYPE_LINK.get().reflection().arrayType(), HACKING_ROBOT_ROBOT_TYPES_LINK.get().type().reflection(), emptyContext(), result ->
             "Field robotTypes in HackingRobot does not have correct type");
 
-        Context.Builder<?> contextBuilder = contextBuilder()
-            .add("x", 0)
-            .add("y", 0);
-        Object hackingRobotInstance = getHackingRobotInstance(0, 0, null, contextBuilder);
-        List<String> expectedRobotTypes = List.of("TELEPORT", "OVERSTEP", "DIAGONAL");
-        List<String> actualRobotTypes = Arrays.stream(HACKING_ROBOT_ROBOT_TYPES_LINK.get().<Enum<?>[]>get(hackingRobotInstance))
-            .map(Enum::name)
-            .toList();
-        Context context = contextBuilder.add("HackingRobot instance", hackingRobotInstance).build();
-        // FIXME: impossible to test default value when field is modified in constructor
-        assertEquals(expectedRobotTypes, actualRobotTypes, context, result ->
-            "Value of field robotTypes in HackingRobot does not equal expected one");
+//        Context.Builder<?> contextBuilder = contextBuilder()
+//            .add("x", 0)
+//            .add("y", 0);
+//        Object hackingRobotInstance = getHackingRobotInstance(0, 0, null, contextBuilder);
+//        List<String> expectedRobotTypes = List.of("TELEPORT", "OVERSTEP", "DIAGONAL");
+//        List<String> actualRobotTypes = Arrays.stream(HACKING_ROBOT_ROBOT_TYPES_LINK.get().<Enum<?>[]>get(hackingRobotInstance))
+//            .map(Enum::name)
+//            .toList();
+//        Context context = contextBuilder.add("HackingRobot instance", hackingRobotInstance).build();
+//        // FIXME: impossible to test default value when field is modified in constructor
+//        assertEquals(expectedRobotTypes, actualRobotTypes, context, result ->
+//            "Value of field robotTypes in HackingRobot does not equal expected one");
     }
 
     @ParameterizedTest

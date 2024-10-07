@@ -1,5 +1,6 @@
 package h03;
 
+import h03.h3_1.HackingRobotTest;
 import h03.h3_1.MovementTypeTest;
 import org.sourcegrade.jagr.api.rubric.*;
 
@@ -23,7 +24,9 @@ public class H03_RubricProvider implements RubricProvider {
         .maxPoints(1)
         .addChildCriteria(
             criterion(
-                "Die Klasse HackingRobot ist korrekt deklariert mit den Attributen type und robotTypes."
+                "Die Klasse HackingRobot ist korrekt deklariert mit den Attributen type und robotTypes.",
+                JUnitTestRef.ofMethod(() -> HackingRobotTest.class.getDeclaredMethod("testClassHeader")),
+                JUnitTestRef.ofMethod(() -> HackingRobotTest.class.getDeclaredMethod("testFields"))
             )
         )
         .build();
