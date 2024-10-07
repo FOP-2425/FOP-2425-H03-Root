@@ -10,6 +10,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.sourcegrade.jagr.api.rubric.TestForSubmission;
 import org.tudalgo.algoutils.tutor.general.assertions.Context;
+import org.tudalgo.algoutils.tutor.general.reflections.ConstructorLink;
 import org.tudalgo.algoutils.tutor.general.reflections.EnumConstantLink;
 
 import java.lang.reflect.Array;
@@ -69,9 +70,32 @@ public class HackingRobotTest {
 //            "Value of field robotTypes in HackingRobot does not equal expected one");
     }
 
+    @Test
+    public void testConstructorHeader() {
+        ConstructorLink constructorLink = HACKING_ROBOT_CONSTRUCTOR_LINK.get();  // implicitly asserts param types
+        assertTrue((constructorLink.modifiers() & Modifier.PUBLIC) != 0, emptyContext(), result ->
+            "Constructor in HackingRobot is not declared public");
+    }
+
+    @Test
+    public void testConstructorSuperCall() {
+        int x = 2;
+        int y = 2;
+        Context.Builder<?> contextBuilder = contextBuilder()
+            .add("x", x)
+            .add("y", y);
+        Robot hackingRobotInstance = (Robot) getHackingRobotInstance(x, y, false, contextBuilder);
+        Context context = contextBuilder.add("HackingRobot instance", hackingRobotInstance).build();
+
+        assertEquals(x, hackingRobotInstance.getX(), context, result ->
+            "Incorrect value for parameter x passed to super constructor");
+        assertEquals(y, hackingRobotInstance.getY(), context, result ->
+            "Incorrect value for parameter y passed to super constructor");
+    }
+
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
-    public void testConstructor(boolean order) {
+    public void testConstructorSetsFields(boolean order) {
         List<String> expectedRobotTypes = order ?
             List.of("DIAGONAL", "TELEPORT", "OVERSTEP") :
             List.of("OVERSTEP", "DIAGONAL", "TELEPORT");
@@ -83,20 +107,12 @@ public class HackingRobotTest {
         Robot hackingRobotInstance = (Robot) getHackingRobotInstance(x, y, order, contextBuilder);
         Context context = contextBuilder.add("HackingRobot instance", hackingRobotInstance).build();
 
-        assertEquals(x, hackingRobotInstance.getX(), context, result ->
-            "Incorrect value for parameter x passed to super constructor");
-        assertEquals(y, hackingRobotInstance.getY(), context, result ->
-            "Incorrect value for parameter y passed to super constructor");
         assertEquals(expectedRobotTypes,
             Arrays.stream(HACKING_ROBOT_ROBOT_TYPES_LINK.get().<Enum<?>[]>get(hackingRobotInstance))
                 .map(Enum::name)
                 .toList(),
             context,
             result -> "The values of array robotTypes in HackingRobot were not shifted correctly");
-        assertEquals(expectedRobotTypes.getFirst(),
-            HACKING_ROBOT_TYPE_LINK.get().<Enum<?>>get(hackingRobotInstance).name(),
-            context,
-            result -> "Value of field type in HackingRobot is incorrect");
     }
 
     @Test

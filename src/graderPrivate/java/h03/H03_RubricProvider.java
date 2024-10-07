@@ -36,13 +36,16 @@ public class H03_RubricProvider implements RubricProvider {
         .maxPoints(3)
         .addChildCriteria(
             criterion(
-                "Der Konstruktor von HackingRobot ist korrekt deklariert."
+                "Der Konstruktor von HackingRobot ist korrekt deklariert.",
+                JUnitTestRef.ofMethod(() -> HackingRobotTest.class.getDeclaredMethod("testConstructorHeader"))
             ),
             criterion(
-                "Der Konstruktor ruft den Konstruktor der Basisklasse Robot korrekt auf."
+                "Der Konstruktor ruft den Konstruktor der Basisklasse Robot korrekt auf.",
+                JUnitTestRef.ofMethod(() -> HackingRobotTest.class.getDeclaredMethod("testConstructorSuperCall"))
             ),
             criterion(
-                "Das Attribut robotTypes ist korrekt initialisiert und die Elemente korrekt nach order verschoben."
+                "Das Attribut robotTypes ist korrekt initialisiert und die Elemente korrekt nach order verschoben.",
+                JUnitTestRef.ofMethod(() -> HackingRobotTest.class.getDeclaredMethod("testConstructorSetsFields", boolean.class))
             )
         )
         .build();
