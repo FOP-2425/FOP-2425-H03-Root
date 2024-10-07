@@ -55,13 +55,16 @@ public class H03_RubricProvider implements RubricProvider {
         .maxPoints(3)
         .addChildCriteria(
             criterion(
-                "Die Methode getType gibt den aktuellen Robotertyp korrekt zurück."
+                "Die Methode getType gibt den aktuellen Robotertyp korrekt zurück.",
+                JUnitTestRef.ofMethod(() -> HackingRobotTest.class.getDeclaredMethod("testGetType"))
             ),
             criterion(
-                "Die Methode getNextType gibt den nächsten Typ korrekt zurück, wobei bei Bedarf zum Index 0 zurückgesprungen wird."
+                "Die Methode getNextType gibt den nächsten Typ korrekt zurück, wobei bei Bedarf zum Index 0 zurückgesprungen wird.",
+                JUnitTestRef.ofMethod(() -> HackingRobotTest.class.getDeclaredMethod("testGetNextType", int.class))
             ),
             criterion(
                 "Die Methode getNextType berücksichtigt korrekt den Zyklus der Bewegungsmuster, wenn der letzte Typ erreicht wurde."
+                // TODO: Add new test or rework criterion
             )
         )
         .build();
