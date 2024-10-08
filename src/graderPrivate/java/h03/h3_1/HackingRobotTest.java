@@ -2,6 +2,7 @@ package h03.h3_1;
 
 import fopbot.Robot;
 import fopbot.World;
+import kotlin.Triple;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -174,51 +175,34 @@ public class HackingRobotTest {
 
     @ParameterizedTest
     @ValueSource(ints = {0, 1, 2})
-    public void testShuffle1(int index) {
-        // Header
-        assertTrue((HACKING_ROBOT_SHUFFLE1_LINK.get().modifiers() & Modifier.PUBLIC) != 0, emptyContext(), result ->
-            "Method shuffle(int) in HackingRobot was not declared public");
-        assertEquals(boolean.class, HACKING_ROBOT_SHUFFLE1_LINK.get().returnType().reflection(), emptyContext(), result ->
-            "Method shuffle(int) has incorrect return type");
-
-        // Code
-        Object hackingRobotInstance = Mockito.mock(HACKING_ROBOT_LINK.get().reflection(), invocation -> {
-            if (invocation.getMethod().equals(HACKING_ROBOT_GET_RANDOM_LINK.get().reflection())) {
-                return index;
-            } else {
-                return invocation.callRealMethod();
-            }
-        });
-        EnumConstantLink[] movementTypeConstantLinks = MOVEMENT_TYPE_CONSTANTS.get();
-        Enum<?>[] movementTypeConstants = Arrays.stream(movementTypeConstantLinks)
+    public void testShuffleWithParams_SetField(int index) {
+        Enum<?>[] movementTypeConstants = Arrays.stream(MOVEMENT_TYPE_CONSTANTS.get())
             .map(EnumConstantLink::constant)
             .toArray(Enum[]::new);
-        Object typesafeRobotTypes = Array.newInstance(MOVEMENT_TYPE_LINK.get().reflection(), movementTypeConstants.length);
-        System.arraycopy(movementTypeConstants, 0, typesafeRobotTypes, 0, movementTypeConstants.length);
+        Triple<Context, Object, Boolean> invocationResult = testShuffleWithParams(index);
 
-        HACKING_ROBOT_TYPE_LINK.get().set(hackingRobotInstance, movementTypeConstants[0]);
-        HACKING_ROBOT_ROBOT_TYPES_LINK.get().set(hackingRobotInstance, typesafeRobotTypes);
-        Context context = contextBuilder()
-            .add("Field 'type'", movementTypeConstants[0])
-            .add("Field 'robotTypes'", movementTypeConstants)
-            .add("getRandom(int) return value", index)
-            .build();
-
-        assertCallEquals(index != 0, () -> HACKING_ROBOT_SHUFFLE1_LINK.get().invoke(hackingRobotInstance, 1), context, result ->
-            "Method 'shuffle(int)' in HackingRobot did not return the expected value");
-        assertEquals(movementTypeConstants[index], HACKING_ROBOT_TYPE_LINK.get().get(hackingRobotInstance), context, result ->
+        assertEquals(movementTypeConstants[index], HACKING_ROBOT_TYPE_LINK.get().get(invocationResult.getSecond()), invocationResult.getFirst(), result ->
             "Field 'type' in HackingRobot was not set to the correct value");
     }
 
+    @ParameterizedTest
+    @ValueSource(ints = {0, 1, 2})
+    public void testShuffleWithParams_ReturnValue(int index) {
+        Triple<Context, Object, Boolean> invocationResult = testShuffleWithParams(index);
+
+        assertEquals(index != 0, invocationResult.getThird(), invocationResult.getFirst(), result ->
+            "Method 'shuffle(int)' in HackingRobot did not return the expected value");
+    }
+
     @Test
-    public void testShuffle2() {
+    public void testShuffleNoParams() {
         // Header
         assertTrue((HACKING_ROBOT_SHUFFLE2_LINK.get().modifiers() & Modifier.PUBLIC) != 0, emptyContext(), result ->
             "Method shuffle() in HackingRobot was not declared public");
         assertEquals(void.class, HACKING_ROBOT_SHUFFLE2_LINK.get().returnType().reflection(), emptyContext(), result ->
             "Method shuffle() has incorrect return type");
 
-        // Code
+        // Body
         int limit = 5;
         AtomicInteger counter = new AtomicInteger(0);
         Object hackingRobotInstance = Mockito.mock(HACKING_ROBOT_LINK.get().reflection(), invocation -> {
@@ -305,5 +289,31 @@ public class HackingRobotTest {
             () -> HACKING_ROBOT_GET_NEXT_TYPE_LINK.get().invoke(hackingRobotInstance),
             context,
             result -> "The value returned by getNextType is incorrect");
+    }
+
+    private Triple<Context, Object, Boolean> testShuffleWithParams(int index) {
+        Object hackingRobotInstance = Mockito.mock(HACKING_ROBOT_LINK.get().reflection(), invocation -> {
+            if (invocation.getMethod().equals(HACKING_ROBOT_GET_RANDOM_LINK.get().reflection())) {
+                return index;
+            } else {
+                return invocation.callRealMethod();
+            }
+        });
+        Enum<?>[] movementTypeConstants = Arrays.stream(MOVEMENT_TYPE_CONSTANTS.get())
+            .map(EnumConstantLink::constant)
+            .toArray(Enum[]::new);
+        Object typesafeRobotTypes = Array.newInstance(MOVEMENT_TYPE_LINK.get().reflection(), movementTypeConstants.length);
+        System.arraycopy(movementTypeConstants, 0, typesafeRobotTypes, 0, movementTypeConstants.length);
+
+        HACKING_ROBOT_TYPE_LINK.get().set(hackingRobotInstance, movementTypeConstants[0]);
+        HACKING_ROBOT_ROBOT_TYPES_LINK.get().set(hackingRobotInstance, typesafeRobotTypes);
+        Context context = contextBuilder()
+            .add("Field 'type'", movementTypeConstants[0])
+            .add("Field 'robotTypes'", movementTypeConstants)
+            .add("getRandom(int) return value", index)
+            .build();
+
+        return new Triple<>(context, hackingRobotInstance, callObject(() -> HACKING_ROBOT_SHUFFLE1_LINK.get().invoke(hackingRobotInstance, 1), context, result ->
+            "An exception occurred while invoking shuffle(int)"));
     }
 }

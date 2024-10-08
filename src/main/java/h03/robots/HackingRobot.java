@@ -98,14 +98,13 @@ public class HackingRobot extends Robot {
             this.type = robotTypes[randomIndex];
         }
 
-        return this.type == previousType;
+        return this.type != previousType;
     }
 
     /**
      * Randomly changes the type of the robot until the type is different from the current type.
      */
     public void shuffle() {
-        while (shuffle(1)) {
-        }
+        while (!shuffle(1));
     }
 }

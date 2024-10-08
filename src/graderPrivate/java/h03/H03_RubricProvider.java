@@ -71,25 +71,25 @@ public class H03_RubricProvider implements RubricProvider {
 
     private static final Criterion H3_1_5 = Criterion.builder().
         shortDescription("H3.1.5 | Swap type")
-        .maxPoints(3)
         .addChildCriteria(
             criterion(
-                "Die Methode shuffle(int itNr) funktioniert korrekt und ändert den Robotertyp zufällig."
+                "Die Methode shuffle(int itNr) funktioniert korrekt und ändert den Robotertyp zufällig.",
+                JUnitTestRef.ofMethod(() -> HackingRobotTest.class.getDeclaredMethod("testShuffleWithParams_SetField", int.class))
             ),
             criterion(
-                "Die Methode gibt true zurück, wenn der Typ geändert wurde, sonst false."
-            ),
-            criterion(
-                "Die Methode shuffle() ohne Parameter funktioniert korrekt und randomisiert den Typ bis er sich ändert."
+                "Die Methode gibt true zurück, wenn der Typ geändert wurde, sonst false.",
+                JUnitTestRef.ofMethod(() -> HackingRobotTest.class.getDeclaredMethod("testShuffleWithParams_ReturnValue", int.class))
             )
         )
         .build();
 
     private static final Criterion H3_1_6 = Criterion.builder().
         shortDescription("H3.1.6 | Are you sure of the swap?")
-        .maxPoints(1).addChildCriteria(
+        .addChildCriteria(
             criterion(
-                "Die Methode shuffle() ist korrekt überladen und garantiert, dass der Typ des Roboters geändert wird."
+                "Die Methode shuffle() ist korrekt überladen und garantiert, dass der Typ des Roboters geändert wird.",
+                2,
+                JUnitTestRef.ofMethod(() -> HackingRobotTest.class.getDeclaredMethod("testShuffleNoParams"))
             )
         )
         .build();
