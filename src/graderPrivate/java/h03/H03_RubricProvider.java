@@ -59,12 +59,12 @@ public class H03_RubricProvider implements RubricProvider {
                 JUnitTestRef.ofMethod(() -> HackingRobotTest.class.getDeclaredMethod("testGetType"))
             ),
             criterion(
-                "Die Methode getNextType gibt den nächsten Typ korrekt zurück, wobei bei Bedarf zum Index 0 zurückgesprungen wird.",
-                JUnitTestRef.ofMethod(() -> HackingRobotTest.class.getDeclaredMethod("testGetNextType", int.class))
+                "Die Methode getNextType gibt den nächsten Typ korrekt zurück, wenn nicht zum Index 0 zurückgesprungen wird.",
+                JUnitTestRef.ofMethod(() -> HackingRobotTest.class.getDeclaredMethod("testGetNextTypeNoMod", int.class))
             ),
             criterion(
-                "Die Methode getNextType berücksichtigt korrekt den Zyklus der Bewegungsmuster, wenn der letzte Typ erreicht wurde."
-                // TODO: Add new test or rework criterion
+                "Die Methode getNextType gibt den nächsten Typ korrekt zurück, wenn zum Index 0 zurückgesprungen werden muss.",
+                JUnitTestRef.ofMethod(() -> HackingRobotTest.class.getDeclaredMethod("testGetNextTypeMod", int.class))
             )
         )
         .build();

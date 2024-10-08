@@ -138,34 +138,15 @@ public class HackingRobotTest {
     }
 
     @ParameterizedTest
-    @ValueSource(ints = {0, 1, 2, 3, 4})
-    public void testGetNextType(int offset) {
-        int x = 2;
-        int y = 2;
-        Context.Builder<?> contextBuilder = contextBuilder()
-            .add("x", x)
-            .add("y", y);
-        Object hackingRobotInstance = getHackingRobotInstance(x, y, null, contextBuilder);
-        EnumConstantLink[] movementTypeConstantsLinks = MOVEMENT_TYPE_CONSTANTS.get();
-        Enum<?>[] movementTypeConstants = Arrays.stream(movementTypeConstantsLinks)
-            .map(EnumConstantLink::constant)
-            .toArray(Enum[]::new);
-        Context context = contextBuilder
-            .add("HackingRobot instance", hackingRobotInstance)
-            .add("Field 'type'", movementTypeConstants[offset % movementTypeConstants.length])
-            .add("Field 'robotTypes'", movementTypeConstants)
-            .build();
+    @ValueSource(ints = {0, 1, 2})
+    public void testGetNextTypeNoMod(int offset) {
+        testGetNextTypeMod(offset);
+    }
 
-        // Everyone's tough 'til runtime type safety checks show up
-        Object typesafeRobotTypes = Array.newInstance(MOVEMENT_TYPE_LINK.get().reflection(), movementTypeConstants.length);
-        System.arraycopy(movementTypeConstants, 0, typesafeRobotTypes, 0, movementTypeConstants.length);
-
-        HACKING_ROBOT_TYPE_LINK.get().set(hackingRobotInstance, movementTypeConstants[offset % movementTypeConstants.length]);
-        HACKING_ROBOT_ROBOT_TYPES_LINK.get().set(hackingRobotInstance, typesafeRobotTypes);
-        assertCallEquals(movementTypeConstants[(offset + 1) % movementTypeConstants.length],
-            () -> HACKING_ROBOT_GET_NEXT_TYPE_LINK.get().invoke(hackingRobotInstance),
-            context,
-            result -> "The value returned by getNextType is incorrect");
+    @ParameterizedTest
+    @ValueSource(ints = {3, 4, 5, 6})
+    public void testGetNextTypeMod(int offset) {
+        testGetNextType(offset);
     }
 
     @Test
@@ -295,5 +276,34 @@ public class HackingRobotTest {
         }
 
         return hackingRobotInstance;
+    }
+
+    private void testGetNextType(int offset) {
+        int x = 2;
+        int y = 2;
+        Context.Builder<?> contextBuilder = contextBuilder()
+            .add("x", x)
+            .add("y", y);
+        Object hackingRobotInstance = getHackingRobotInstance(x, y, null, contextBuilder);
+        EnumConstantLink[] movementTypeConstantsLinks = MOVEMENT_TYPE_CONSTANTS.get();
+        Enum<?>[] movementTypeConstants = Arrays.stream(movementTypeConstantsLinks)
+            .map(EnumConstantLink::constant)
+            .toArray(Enum[]::new);
+        Context context = contextBuilder
+            .add("HackingRobot instance", hackingRobotInstance)
+            .add("Field 'type'", movementTypeConstants[offset % movementTypeConstants.length])
+            .add("Field 'robotTypes'", movementTypeConstants)
+            .build();
+
+        // Everyone's tough 'til runtime type safety checks show up
+        Object typesafeRobotTypes = Array.newInstance(MOVEMENT_TYPE_LINK.get().reflection(), movementTypeConstants.length);
+        System.arraycopy(movementTypeConstants, 0, typesafeRobotTypes, 0, movementTypeConstants.length);
+
+        HACKING_ROBOT_TYPE_LINK.get().set(hackingRobotInstance, movementTypeConstants[offset % movementTypeConstants.length]);
+        HACKING_ROBOT_ROBOT_TYPES_LINK.get().set(hackingRobotInstance, typesafeRobotTypes);
+        assertCallEquals(movementTypeConstants[(offset + 1) % movementTypeConstants.length],
+            () -> HACKING_ROBOT_GET_NEXT_TYPE_LINK.get().invoke(hackingRobotInstance),
+            context,
+            result -> "The value returned by getNextType is incorrect");
     }
 }
