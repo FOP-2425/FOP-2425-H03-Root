@@ -47,6 +47,12 @@ public final class Links {
     public static final Supplier<MethodLink> DOUBLE_POWER_ROBOT_SHUFFLE1_LINK = getMethodLink(DOUBLE_POWER_ROBOT_LINK, "shuffle", int.class);
     public static final Supplier<MethodLink> DOUBLE_POWER_ROBOT_SHUFFLE2_LINK = getMethodLink(DOUBLE_POWER_ROBOT_LINK, "shuffle");
 
+    // Class h03.robots.VersatileRobot
+    public static final Supplier<TypeLink> VERSATILE_ROBOT_LINK = getTypeLinkByName(ROBOTS_PACKAGE_LINK, "VersatileRobot");
+    public static final Supplier<ConstructorLink> VERSATILE_ROBOT_CONSTRUCTOR_LINK = getConstructorLink(VERSATILE_ROBOT_LINK, int.class, int.class, boolean.class, boolean.class);
+    public static final Supplier<MethodLink> VERSATILE_ROBOT_SHUFFLE1_LINK = getMethodLink(VERSATILE_ROBOT_LINK, "shuffle", int.class);
+    public static final Supplier<MethodLink> VERSATILE_ROBOT_SHUFFLE2_LINK = getMethodLink(VERSATILE_ROBOT_LINK, "shuffle");
+
     private static Supplier<TypeLink> getTypeLinkByName(Supplier<PackageLink> packageLink, String name) {
         return Suppliers.memoize(() -> packageLink.get().getType(Matcher.of(typeLink -> typeLink.name().equals(name))));
     }

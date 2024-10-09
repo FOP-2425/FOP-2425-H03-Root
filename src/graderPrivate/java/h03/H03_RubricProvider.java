@@ -3,6 +3,7 @@ package h03;
 import h03.h3_1.HackingRobotTest;
 import h03.h3_1.MovementTypeTest;
 import h03.h3_2.DoublePowerRobotTest;
+import h03.h3_2.VersatileRobotTest;
 import h03.mock.HackingRobotClassTransformer;
 import org.sourcegrade.jagr.api.rubric.*;
 import org.sourcegrade.jagr.api.testing.RubricConfiguration;
@@ -137,16 +138,20 @@ public class H03_RubricProvider implements RubricProvider {
         shortDescription("H3.2.2 | VersatileRobot")
         .maxPoints(4).addChildCriteria(
             criterion(
-                "Die Klasse VersatileRobot ist korrekt deklariert."
+                "Die Klasse VersatileRobot ist korrekt deklariert.",
+                JUnitTestRef.ofMethod(() -> VersatileRobotTest.class.getDeclaredMethod("testClassHeader"))
             ),
             criterion(
-                "Der Konstruktor der Klasse VersatileRobot setzt y = x, wenn der Typ DIAGONAL ist."
+                "Der Konstruktor der Klasse VersatileRobot setzt y = x, wenn der Typ DIAGONAL ist.",
+                JUnitTestRef.ofMethod(() -> VersatileRobotTest.class.getDeclaredMethod("testConstructor"))
             ),
             criterion(
-                "Die Methoden shuffle() setzen korrekt die y-Koordinate, wenn der Typ DIAGONAL ist."
+                "Die Methode shuffle(int itNr) funktioniert korrekt.",
+                JUnitTestRef.ofMethod(() -> VersatileRobotTest.class.getDeclaredMethod("testShuffleWithParams"))
             ),
             criterion(
-                "Die Methode shuffle(int itNr) funktioniert korrekt."
+                "Die Methode shuffle() setzt korrekt die y-Koordinate, wenn der Typ DIAGONAL ist.",
+                JUnitTestRef.ofMethod(() -> VersatileRobotTest.class.getDeclaredMethod("testShuffleNoParams"))
             )
         )
         .build();
