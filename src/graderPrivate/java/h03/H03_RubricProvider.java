@@ -4,6 +4,7 @@ import h03.h3_1.HackingRobotTest;
 import h03.h3_1.MovementTypeTest;
 import h03.h3_2.DoublePowerRobotTest;
 import h03.h3_2.VersatileRobotTest;
+import h03.h3_3.RobotsChallengeTest;
 import h03.mock.HackingRobotClassTransformer;
 import org.sourcegrade.jagr.api.rubric.*;
 import org.sourcegrade.jagr.api.testing.RubricConfiguration;
@@ -166,7 +167,8 @@ public class H03_RubricProvider implements RubricProvider {
         .maxPoints(1)
         .addChildCriteria(
             criterion(
-                "Die Klasse RobotsChallenge ist korrekt deklariert mit dem Attribut winThreshold = 2."
+                "Die Klasse RobotsChallenge ist korrekt deklariert.",
+                JUnitTestRef.ofMethod(() -> RobotsChallengeTest.class.getDeclaredMethod("testClassHeader"))
             )
         )
         .build();
@@ -176,10 +178,12 @@ public class H03_RubricProvider implements RubricProvider {
         .maxPoints(2)
         .addChildCriteria(
             criterion(
-                "Der Konstruktor von RobotsChallenge weist korrekt die Parameter begin, goal, und robots zu."
+                "Der Konstruktor von RobotsChallenge weist korrekt die Parameter begin, goal, und robots zu.",
+                JUnitTestRef.ofMethod(() -> RobotsChallengeTest.class.getDeclaredMethod("testConstructor", int.class))
             ),
             criterion(
-                "Der Konstruktor sorgt dafür, dass begin durch 2 geteilt wird."
+                "Der Konstruktor sorgt dafür, dass winThreshold auf 2 gesetzt wird (direkt oder indirekt).",
+                JUnitTestRef.ofMethod(() -> RobotsChallengeTest.class.getDeclaredMethod("testWinThreshold"))
             )
         )
         .build();

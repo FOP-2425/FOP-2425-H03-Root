@@ -53,6 +53,20 @@ public final class Links {
     public static final Supplier<MethodLink> VERSATILE_ROBOT_SHUFFLE1_LINK = getMethodLink(VERSATILE_ROBOT_LINK, "shuffle", int.class);
     public static final Supplier<MethodLink> VERSATILE_ROBOT_SHUFFLE2_LINK = getMethodLink(VERSATILE_ROBOT_LINK, "shuffle");
 
+    // Class h03.RobotsChallenge
+    public static final Supplier<TypeLink> ROBOTS_CHALLENGE_LINK = getTypeLinkByName(BASE_PACKAGE_LINK, "RobotsChallenge");
+    public static final Supplier<FieldLink> ROBOTS_CHALLENGE_ROBOTS_LINK = getFieldLinkByName(ROBOTS_CHALLENGE_LINK, "robots");
+    public static final Supplier<FieldLink> ROBOTS_CHALLENGE_GOAL_LINK = getFieldLinkByName(ROBOTS_CHALLENGE_LINK, "goal");
+    public static final Supplier<FieldLink> ROBOTS_CHALLENGE_BEGIN_LINK = getFieldLinkByName(ROBOTS_CHALLENGE_LINK, "begin");
+    public static final Supplier<FieldLink> ROBOTS_CHALLENGE_WIN_THRESHOLD_LINK = getFieldLinkByName(ROBOTS_CHALLENGE_LINK, "winThreshold");
+    public static final Supplier<ConstructorLink> ROBOTS_CHALLENGE_CONSTRUCTOR_LINK = getConstructorLink(ROBOTS_CHALLENGE_LINK,
+        () -> BasicTypeLink.of(int.class), () -> BasicTypeLink.of(int.class), () -> BasicTypeLink.of(DOUBLE_POWER_ROBOT_LINK.get().reflection().arrayType()));
+    public static final Supplier<MethodLink> ROBOTS_CHALLENGE_CALCULATE_STEPS_DIAGONAL = getMethodLink(ROBOTS_CHALLENGE_LINK, "calculateStepsDiagonal");
+    public static final Supplier<MethodLink> ROBOTS_CHALLENGE_CALCULATE_STEPS_OVERSTEP = getMethodLink(ROBOTS_CHALLENGE_LINK, "calculateStepsOverstep");
+    public static final Supplier<MethodLink> ROBOTS_CHALLENGE_CALCULATE_STEPS_TELEPORT = getMethodLink(ROBOTS_CHALLENGE_LINK, "calculateStepsTeleport");
+    public static final Supplier<MethodLink> ROBOTS_CHALLENGE_CALCULATE_STEPS = getMethodLink(ROBOTS_CHALLENGE_LINK, "calculateSteps", MOVEMENT_TYPE_LINK);
+    public static final Supplier<MethodLink> ROBOTS_CHALLENGE_FIND_WINNERS = getMethodLink(ROBOTS_CHALLENGE_LINK, "findWinners");
+
     private static Supplier<TypeLink> getTypeLinkByName(Supplier<PackageLink> packageLink, String name) {
         return Suppliers.memoize(() -> packageLink.get().getType(Matcher.of(typeLink -> typeLink.name().equals(name))));
     }
