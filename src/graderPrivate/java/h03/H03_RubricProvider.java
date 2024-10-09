@@ -2,7 +2,10 @@ package h03;
 
 import h03.h3_1.HackingRobotTest;
 import h03.h3_1.MovementTypeTest;
+import h03.h3_2.DoublePowerRobotTest;
+import h03.mock.HackingRobotClassTransformer;
 import org.sourcegrade.jagr.api.rubric.*;
+import org.sourcegrade.jagr.api.testing.RubricConfiguration;
 
 import static org.tudalgo.algoutils.tutor.general.jagr.RubricUtils.criterion;
 
@@ -110,16 +113,22 @@ public class H03_RubricProvider implements RubricProvider {
         shortDescription("H3.2.1 | DoublePowerRobot")
         .maxPoints(4).addChildCriteria(
             criterion(
-                "Die Klasse DoublePowerRobot ist korrekt deklariert mit den Attributen und Methoden."
+                "Die Klasse DoublePowerRobot ist korrekt deklariert mit den Attributen und Methoden.",
+                JUnitTestRef.ofMethod(() -> DoublePowerRobotTest.class.getDeclaredMethod("testClassHeader")),
+                JUnitTestRef.ofMethod(() -> DoublePowerRobotTest.class.getDeclaredMethod("testFields")),
+                JUnitTestRef.ofMethod(() -> DoublePowerRobotTest.class.getDeclaredMethod("testMethodHeaders"))
             ),
             criterion(
-                "Der Konstruktor initialisiert doublePowerTypes korrekt mit den aktuellen und nächsten Typen."
+                "Der Konstruktor initialisiert doublePowerTypes korrekt mit den aktuellen und nächsten Typen.",
+                JUnitTestRef.ofMethod(() -> DoublePowerRobotTest.class.getDeclaredMethod("testConstructorSetsField", boolean.class))
             ),
             criterion(
-                "Die Methode shuffle() für DoublePowerRobot aktualisiert den zweiten Typ korrekt."
+                "Die Methode shuffle(int itNr) für DoublePowerRobot funktioniert korrekt.",
+                JUnitTestRef.ofMethod(() -> DoublePowerRobotTest.class.getDeclaredMethod("testShuffleWithParams", int.class))
             ),
             criterion(
-                "Die Methode shuffle(int itNr) für DoublePowerRobot funktioniert korrekt."
+                "Die Methode shuffle() für DoublePowerRobot aktualisiert den zweiten Typ korrekt.",
+                JUnitTestRef.ofMethod(() -> DoublePowerRobotTest.class.getDeclaredMethod("testShuffleNoParams", int.class))
             )
         )
         .build();
@@ -238,5 +247,10 @@ public class H03_RubricProvider implements RubricProvider {
     @Override
     public Rubric getRubric() {
         return RUBRIC;
+    }
+
+    @Override
+    public void configure(RubricConfiguration configuration) {
+        configuration.addTransformer(new HackingRobotClassTransformer());
     }
 }

@@ -14,9 +14,11 @@ public final class Links {
 
     // TODO: Handle typos in package / class names
 
+    // Packages
     public static final Supplier<PackageLink> BASE_PACKAGE_LINK = Suppliers.memoize(() -> BasicPackageLink.of("h03"));
     public static final Supplier<PackageLink> ROBOTS_PACKAGE_LINK = Suppliers.memoize(() -> BasicPackageLink.of("h03.robots"));
 
+    // Enum h03.MovementType
     public static final Supplier<TypeLink> MOVEMENT_TYPE_LINK = getTypeLinkByName(ROBOTS_PACKAGE_LINK, "MovementType");
     public static final Supplier<EnumConstantLink> MOVEMENT_TYPE_DIAGONAL_LINK = getEnumConstantLinkByName(MOVEMENT_TYPE_LINK, "DIAGONAL");
     public static final Supplier<EnumConstantLink> MOVEMENT_TYPE_OVERSTEP_LINK = getEnumConstantLinkByName(MOVEMENT_TYPE_LINK, "OVERSTEP");
@@ -27,6 +29,7 @@ public final class Links {
         MOVEMENT_TYPE_TELEPORT_LINK.get()
     });
 
+    // Class h03.robots.HackingRobot
     public static final Supplier<TypeLink> HACKING_ROBOT_LINK = getTypeLinkByName(ROBOTS_PACKAGE_LINK, "HackingRobot");
     public static final Supplier<FieldLink> HACKING_ROBOT_TYPE_LINK = getFieldLinkByName(HACKING_ROBOT_LINK, "type");
     public static final Supplier<FieldLink> HACKING_ROBOT_ROBOT_TYPES_LINK = getFieldLinkByName(HACKING_ROBOT_LINK, "robotTypes");
@@ -37,6 +40,7 @@ public final class Links {
     public static final Supplier<MethodLink> HACKING_ROBOT_SHUFFLE1_LINK = getMethodLink(HACKING_ROBOT_LINK, "shuffle", int.class);
     public static final Supplier<MethodLink> HACKING_ROBOT_SHUFFLE2_LINK = getMethodLink(HACKING_ROBOT_LINK, "shuffle");
 
+    // Class h03.robots.DoublePowerRobot
     public static final Supplier<TypeLink> DOUBLE_POWER_ROBOT_LINK = getTypeLinkByName(ROBOTS_PACKAGE_LINK, "DoublePowerRobot");
     public static final Supplier<FieldLink> DOUBLE_POWER_ROBOT_DOUBLE_POWER_TYPES_LINK = getFieldLinkByName(DOUBLE_POWER_ROBOT_LINK, "doublePowerTypes");
     public static final Supplier<ConstructorLink> DOUBLE_POWER_ROBOT_CONSTRUCTOR_LINK = getConstructorLink(DOUBLE_POWER_ROBOT_LINK, int.class, int.class, boolean.class);
