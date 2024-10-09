@@ -8,6 +8,7 @@ import h03.h3_3.RobotsChallengeTest;
 import h03.mock.HackingRobotClassTransformer;
 import org.sourcegrade.jagr.api.rubric.*;
 import org.sourcegrade.jagr.api.testing.RubricConfiguration;
+import org.tudalgo.algoutils.tutor.general.json.JsonParameterSet;
 
 import static org.tudalgo.algoutils.tutor.general.jagr.RubricUtils.criterion;
 
@@ -193,13 +194,16 @@ public class H03_RubricProvider implements RubricProvider {
         .maxPoints(3)
         .addChildCriteria(
             criterion(
-                "Die Methode calculateStepsDiagonal ist korrekt implementiert und berechnet die Schritte für den Typ DIAGONAL."
+                "Die Methode calculateStepsDiagonal ist korrekt implementiert und berechnet die Schritte für den Typ DIAGONAL.",
+                JUnitTestRef.ofMethod(() -> RobotsChallengeTest.class.getDeclaredMethod("testCalculateStepsDiagonal", JsonParameterSet.class))
             ),
             criterion(
-                "Die Methode calculateStepsOverstep ist korrekt implementiert und berechnet die Schritte für den Typ OVERSTEP."
+                "Die Methode calculateStepsOverstep ist korrekt implementiert und berechnet die Schritte für den Typ OVERSTEP.",
+                JUnitTestRef.ofMethod(() -> RobotsChallengeTest.class.getDeclaredMethod("testCalculateStepsOverstep", JsonParameterSet.class))
             ),
             criterion(
-                "Die Methode calculateStepsTeleport ist korrekt implementiert und berechnet die Schritte für den Typ TELEPORT."
+                "Die Methode calculateStepsTeleport ist korrekt implementiert und berechnet die Schritte für den Typ TELEPORT.",
+                JUnitTestRef.ofMethod(() -> RobotsChallengeTest.class.getDeclaredMethod("testCalculateStepsTeleport", JsonParameterSet.class))
             )
         )
         .build();
