@@ -6,6 +6,7 @@ import h03.h3_2.DoublePowerRobotTest;
 import h03.h3_2.VersatileRobotTest;
 import h03.h3_3.RobotsChallengeTest;
 import h03.mock.HackingRobotClassTransformer;
+import h03.mock.RobotsChallengeClassTransformer;
 import org.sourcegrade.jagr.api.rubric.*;
 import org.sourcegrade.jagr.api.testing.RubricConfiguration;
 import org.tudalgo.algoutils.tutor.general.json.JsonParameterSet;
@@ -213,13 +214,16 @@ public class H03_RubricProvider implements RubricProvider {
         .maxPoints(3)
         .addChildCriteria(
             criterion(
-                "Die Methode findWinners berechnet korrekt die Schritte für jeden Roboter und gibt die Gewinner zurück."
+                "Die Methode findWinners berechnet korrekt die Schritte für jeden Roboter.",
+                JUnitTestRef.ofMethod(() -> RobotsChallengeTest.class.getDeclaredMethod("testFindWinnersCalc"))
             ),
             criterion(
-                "Die Methode verwendet Math.min korrekt, um die minimalen Schritte zu berechnen."
+                "Die Methode verwendet Math.min korrekt, um die minimalen Schritte zu berechnen.",
+                JUnitTestRef.ofMethod(() -> RobotsChallengeTest.class.getDeclaredMethod("testFindWinnersMin"))
             ),
             criterion(
-                "Gewinner werden korrekt in der Liste winners gespeichert."
+                "Gewinner werden korrekt in der Liste winners gespeichert.",
+                JUnitTestRef.ofMethod(() -> RobotsChallengeTest.class.getDeclaredMethod("testFindWinnersReturn"))
             )
         )
         .build();
@@ -265,5 +269,6 @@ public class H03_RubricProvider implements RubricProvider {
     @Override
     public void configure(RubricConfiguration configuration) {
         configuration.addTransformer(new HackingRobotClassTransformer());
+        configuration.addTransformer(new RobotsChallengeClassTransformer());
     }
 }
