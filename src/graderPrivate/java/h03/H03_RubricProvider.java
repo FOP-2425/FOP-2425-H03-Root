@@ -1,6 +1,15 @@
 package h03;
 
+import h03.h3_1.HackingRobotTest;
+import h03.h3_1.MovementTypeTest;
+import h03.h3_2.DoublePowerRobotTest;
+import h03.h3_2.VersatileRobotTest;
+import h03.h3_3.RobotsChallengeTest;
+import h03.mock.HackingRobotClassTransformer;
+import h03.mock.RobotsChallengeClassTransformer;
 import org.sourcegrade.jagr.api.rubric.*;
+import org.sourcegrade.jagr.api.testing.RubricConfiguration;
+import org.tudalgo.algoutils.tutor.general.json.JsonParameterSet;
 
 import static org.tudalgo.algoutils.tutor.general.jagr.RubricUtils.criterion;
 
@@ -11,7 +20,8 @@ public class H03_RubricProvider implements RubricProvider {
         .maxPoints(1)
         .addChildCriteria(
             criterion(
-                "Die Enumeration MovementType ist korrekt deklariert und umfasst DIAGONAL, OVERSTEP, TELEPORT."
+                "Die Enumeration MovementType ist korrekt deklariert und umfasst DIAGONAL, OVERSTEP, TELEPORT.",
+                JUnitTestRef.ofMethod(() -> MovementTypeTest.class.getDeclaredMethod("testEnumConstants"))
             )
         )
         .build();
@@ -21,7 +31,9 @@ public class H03_RubricProvider implements RubricProvider {
         .maxPoints(1)
         .addChildCriteria(
             criterion(
-                "Die Klasse HackingRobot ist korrekt deklariert mit den Attributen type und robotTypes."
+                "Die Klasse HackingRobot ist korrekt deklariert mit den Attributen type und robotTypes.",
+                JUnitTestRef.ofMethod(() -> HackingRobotTest.class.getDeclaredMethod("testClassHeader")),
+                JUnitTestRef.ofMethod(() -> HackingRobotTest.class.getDeclaredMethod("testFields"))
             )
         )
         .build();
@@ -31,13 +43,16 @@ public class H03_RubricProvider implements RubricProvider {
         .maxPoints(3)
         .addChildCriteria(
             criterion(
-                "Der Konstruktor von HackingRobot ist korrekt deklariert."
+                "Der Konstruktor von HackingRobot ist korrekt deklariert.",
+                JUnitTestRef.ofMethod(() -> HackingRobotTest.class.getDeclaredMethod("testConstructorHeader"))
             ),
             criterion(
-                "Der Konstruktor ruft den Konstruktor der Basisklasse Robot korrekt auf."
+                "Der Konstruktor ruft den Konstruktor der Basisklasse Robot korrekt auf.",
+                JUnitTestRef.ofMethod(() -> HackingRobotTest.class.getDeclaredMethod("testConstructorSuperCall"))
             ),
             criterion(
-                "Das Attribut robotTypes ist korrekt initialisiert und die Elemente korrekt nach order verschoben."
+                "Das Attribut robotTypes ist korrekt initialisiert und die Elemente korrekt nach order verschoben.",
+                JUnitTestRef.ofMethod(() -> HackingRobotTest.class.getDeclaredMethod("testConstructorSetsFields", boolean.class))
             )
         )
         .build();
@@ -47,38 +62,41 @@ public class H03_RubricProvider implements RubricProvider {
         .maxPoints(3)
         .addChildCriteria(
             criterion(
-                "Die Methode getType gibt den aktuellen Robotertyp korrekt zurück."
+                "Die Methode getType gibt den aktuellen Robotertyp korrekt zurück.",
+                JUnitTestRef.ofMethod(() -> HackingRobotTest.class.getDeclaredMethod("testGetType"))
             ),
             criterion(
-                "Die Methode getNextType gibt den nächsten Typ korrekt zurück, wobei bei Bedarf zum Index 0 zurückgesprungen wird."
+                "Die Methode getNextType gibt den nächsten Typ korrekt zurück, wenn nicht zum Index 0 zurückgesprungen wird.",
+                JUnitTestRef.ofMethod(() -> HackingRobotTest.class.getDeclaredMethod("testGetNextTypeNoMod", int.class))
             ),
             criterion(
-                "Die Methode getNextType berücksichtigt korrekt den Zyklus der Bewegungsmuster, wenn der letzte Typ erreicht wurde."
+                "Die Methode getNextType gibt den nächsten Typ korrekt zurück, wenn zum Index 0 zurückgesprungen werden muss.",
+                JUnitTestRef.ofMethod(() -> HackingRobotTest.class.getDeclaredMethod("testGetNextTypeMod", int.class))
             )
         )
         .build();
 
     private static final Criterion H3_1_5 = Criterion.builder().
         shortDescription("H3.1.5 | Swap type")
-        .maxPoints(3)
         .addChildCriteria(
             criterion(
-                "Die Methode shuffle(int itNr) funktioniert korrekt und ändert den Robotertyp zufällig."
+                "Die Methode shuffle(int itNr) funktioniert korrekt und ändert den Robotertyp zufällig.",
+                JUnitTestRef.ofMethod(() -> HackingRobotTest.class.getDeclaredMethod("testShuffleWithParams_SetField", int.class))
             ),
             criterion(
-                "Die Methode gibt true zurück, wenn der Typ geändert wurde, sonst false."
-            ),
-            criterion(
-                "Die Methode shuffle() ohne Parameter funktioniert korrekt und randomisiert den Typ bis er sich ändert."
+                "Die Methode gibt true zurück, wenn der Typ geändert wurde, sonst false.",
+                JUnitTestRef.ofMethod(() -> HackingRobotTest.class.getDeclaredMethod("testShuffleWithParams_ReturnValue", int.class))
             )
         )
         .build();
 
     private static final Criterion H3_1_6 = Criterion.builder().
         shortDescription("H3.1.6 | Are you sure of the swap?")
-        .maxPoints(1).addChildCriteria(
+        .addChildCriteria(
             criterion(
-                "Die Methode shuffle() ist korrekt überladen und garantiert, dass der Typ des Roboters geändert wird."
+                "Die Methode shuffle() ist korrekt überladen und garantiert, dass der Typ des Roboters geändert wird.",
+                2,
+                JUnitTestRef.ofMethod(() -> HackingRobotTest.class.getDeclaredMethod("testShuffleNoParams"))
             )
         )
         .build();
@@ -99,16 +117,22 @@ public class H03_RubricProvider implements RubricProvider {
         shortDescription("H3.2.1 | DoublePowerRobot")
         .maxPoints(4).addChildCriteria(
             criterion(
-                "Die Klasse DoublePowerRobot ist korrekt deklariert mit den Attributen und Methoden."
+                "Die Klasse DoublePowerRobot ist korrekt deklariert mit den Attributen und Methoden.",
+                JUnitTestRef.ofMethod(() -> DoublePowerRobotTest.class.getDeclaredMethod("testClassHeader")),
+                JUnitTestRef.ofMethod(() -> DoublePowerRobotTest.class.getDeclaredMethod("testFields")),
+                JUnitTestRef.ofMethod(() -> DoublePowerRobotTest.class.getDeclaredMethod("testMethodHeaders"))
             ),
             criterion(
-                "Der Konstruktor initialisiert doublePowerTypes korrekt mit den aktuellen und nächsten Typen."
+                "Der Konstruktor initialisiert doublePowerTypes korrekt mit den aktuellen und nächsten Typen.",
+                JUnitTestRef.ofMethod(() -> DoublePowerRobotTest.class.getDeclaredMethod("testConstructorSetsField", boolean.class))
             ),
             criterion(
-                "Die Methode shuffle() für DoublePowerRobot aktualisiert den zweiten Typ korrekt."
+                "Die Methode shuffle(int itNr) für DoublePowerRobot funktioniert korrekt.",
+                JUnitTestRef.ofMethod(() -> DoublePowerRobotTest.class.getDeclaredMethod("testShuffleWithParams", int.class))
             ),
             criterion(
-                "Die Methode shuffle(int itNr) für DoublePowerRobot funktioniert korrekt."
+                "Die Methode shuffle() für DoublePowerRobot aktualisiert den zweiten Typ korrekt.",
+                JUnitTestRef.ofMethod(() -> DoublePowerRobotTest.class.getDeclaredMethod("testShuffleNoParams", int.class))
             )
         )
         .build();
@@ -117,16 +141,20 @@ public class H03_RubricProvider implements RubricProvider {
         shortDescription("H3.2.2 | VersatileRobot")
         .maxPoints(4).addChildCriteria(
             criterion(
-                "Die Klasse VersatileRobot ist korrekt deklariert."
+                "Die Klasse VersatileRobot ist korrekt deklariert.",
+                JUnitTestRef.ofMethod(() -> VersatileRobotTest.class.getDeclaredMethod("testClassHeader"))
             ),
             criterion(
-                "Der Konstruktor der Klasse VersatileRobot setzt y = x, wenn der Typ DIAGONAL ist."
+                "Der Konstruktor der Klasse VersatileRobot setzt y = x, wenn der Typ DIAGONAL ist.",
+                JUnitTestRef.ofMethod(() -> VersatileRobotTest.class.getDeclaredMethod("testConstructor"))
             ),
             criterion(
-                "Die Methoden shuffle() setzen korrekt die y-Koordinate, wenn der Typ DIAGONAL ist."
+                "Die Methode shuffle(int itNr) funktioniert korrekt.",
+                JUnitTestRef.ofMethod(() -> VersatileRobotTest.class.getDeclaredMethod("testShuffleWithParams"))
             ),
             criterion(
-                "Die Methode shuffle(int itNr) funktioniert korrekt."
+                "Die Methode shuffle() setzt korrekt die y-Koordinate, wenn der Typ DIAGONAL ist.",
+                JUnitTestRef.ofMethod(() -> VersatileRobotTest.class.getDeclaredMethod("testShuffleNoParams"))
             )
         )
         .build();
@@ -141,7 +169,8 @@ public class H03_RubricProvider implements RubricProvider {
         .maxPoints(1)
         .addChildCriteria(
             criterion(
-                "Die Klasse RobotsChallenge ist korrekt deklariert mit dem Attribut winThreshold = 2."
+                "Die Klasse RobotsChallenge ist korrekt deklariert.",
+                JUnitTestRef.ofMethod(() -> RobotsChallengeTest.class.getDeclaredMethod("testClassHeader"))
             )
         )
         .build();
@@ -151,10 +180,12 @@ public class H03_RubricProvider implements RubricProvider {
         .maxPoints(2)
         .addChildCriteria(
             criterion(
-                "Der Konstruktor von RobotsChallenge weist korrekt die Parameter begin, goal, und robots zu."
+                "Der Konstruktor von RobotsChallenge weist korrekt die Parameter begin, goal, und robots zu.",
+                JUnitTestRef.ofMethod(() -> RobotsChallengeTest.class.getDeclaredMethod("testConstructor", int.class))
             ),
             criterion(
-                "Der Konstruktor sorgt dafür, dass begin durch 2 geteilt wird."
+                "Der Konstruktor sorgt dafür, dass winThreshold auf 2 gesetzt wird (direkt oder indirekt).",
+                JUnitTestRef.ofMethod(() -> RobotsChallengeTest.class.getDeclaredMethod("testWinThreshold"))
             )
         )
         .build();
@@ -164,13 +195,16 @@ public class H03_RubricProvider implements RubricProvider {
         .maxPoints(3)
         .addChildCriteria(
             criterion(
-                "Die Methode calculateStepsDiagonal ist korrekt implementiert und berechnet die Schritte für den Typ DIAGONAL."
+                "Die Methode calculateStepsDiagonal ist korrekt implementiert und berechnet die Schritte für den Typ DIAGONAL.",
+                JUnitTestRef.ofMethod(() -> RobotsChallengeTest.class.getDeclaredMethod("testCalculateStepsDiagonal", JsonParameterSet.class))
             ),
             criterion(
-                "Die Methode calculateStepsOverstep ist korrekt implementiert und berechnet die Schritte für den Typ OVERSTEP."
+                "Die Methode calculateStepsOverstep ist korrekt implementiert und berechnet die Schritte für den Typ OVERSTEP.",
+                JUnitTestRef.ofMethod(() -> RobotsChallengeTest.class.getDeclaredMethod("testCalculateStepsOverstep", JsonParameterSet.class))
             ),
             criterion(
-                "Die Methode calculateStepsTeleport ist korrekt implementiert und berechnet die Schritte für den Typ TELEPORT."
+                "Die Methode calculateStepsTeleport ist korrekt implementiert und berechnet die Schritte für den Typ TELEPORT.",
+                JUnitTestRef.ofMethod(() -> RobotsChallengeTest.class.getDeclaredMethod("testCalculateStepsTeleport", JsonParameterSet.class))
             )
         )
         .build();
@@ -180,13 +214,16 @@ public class H03_RubricProvider implements RubricProvider {
         .maxPoints(3)
         .addChildCriteria(
             criterion(
-                "Die Methode findWinners berechnet korrekt die Schritte für jeden Roboter und gibt die Gewinner zurück."
+                "Die Methode findWinners berechnet korrekt die Schritte für jeden Roboter.",
+                JUnitTestRef.ofMethod(() -> RobotsChallengeTest.class.getDeclaredMethod("testFindWinnersCalc"))
             ),
             criterion(
-                "Die Methode verwendet Math.min korrekt, um die minimalen Schritte zu berechnen."
+                "Die Methode verwendet Math.min korrekt, um die minimalen Schritte zu berechnen.",
+                JUnitTestRef.ofMethod(() -> RobotsChallengeTest.class.getDeclaredMethod("testFindWinnersMin"))
             ),
             criterion(
-                "Gewinner werden korrekt in der Liste winners gespeichert."
+                "Gewinner werden korrekt in der Liste winners gespeichert.",
+                JUnitTestRef.ofMethod(() -> RobotsChallengeTest.class.getDeclaredMethod("testFindWinnersReturn"))
             )
         )
         .build();
@@ -227,5 +264,11 @@ public class H03_RubricProvider implements RubricProvider {
     @Override
     public Rubric getRubric() {
         return RUBRIC;
+    }
+
+    @Override
+    public void configure(RubricConfiguration configuration) {
+        configuration.addTransformer(new HackingRobotClassTransformer());
+        configuration.addTransformer(new RobotsChallengeClassTransformer());
     }
 }
