@@ -34,8 +34,8 @@ jagr {
         val graderPublic by getting
         val graderPrivate by creating {
             parent(graderPublic)
-            graderName.set("FOP-2425-H02-Private")
-            rubricProviderName.set("h02.H02_RubricProvider")
+            graderName.set("FOP-2425-H03-Private")
+            rubricProviderName.set("h03.H03_RubricProvider")
         }
     }
 }
