@@ -35,13 +35,13 @@ public class DoublePowerRobot extends HackingRobot {
      */
     @Override
     public boolean shuffle(int itNr) {
-        boolean changed = !super.shuffle(itNr);
+        boolean changed = super.shuffle(itNr);
 
         // Updating the types in doublePowerTypes based on the new value of type
         doublePowerTypes[0] = getType();
         doublePowerTypes[1] = getNextType();
 
-        return !changed;
+        return changed;
     }
 
     /**

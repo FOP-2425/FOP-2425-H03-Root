@@ -89,7 +89,7 @@ public class HackingRobot extends Robot {
      * Randomly changes the type of the robot a specified number of times.
      *
      * @param itNr The number of iterations to shuffle the type.
-     * @return True if the type remained the same after shuffling, false otherwise.
+     * @return True if the type changed after shuffling, false otherwise.
      */
     public boolean shuffle(int itNr) {
         MovementType previousType = this.type;
@@ -98,14 +98,14 @@ public class HackingRobot extends Robot {
             this.type = robotTypes[randomIndex];
         }
 
-        return this.type == previousType;
+        return this.type != previousType;
     }
 
     /**
      * Randomly changes the type of the robot until the type is different from the current type.
      */
     public void shuffle() {
-        while (shuffle(1)) {
+        while (!shuffle(1)) {
         }
     }
 }
