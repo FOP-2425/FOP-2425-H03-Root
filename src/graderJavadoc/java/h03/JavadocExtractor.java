@@ -175,7 +175,7 @@ public class JavadocExtractor<T extends Link & WithCtElement> {
             case CtClass<?> c -> toName(CtClass.class, c.getQualifiedName());
             case CtInterface<?> i -> toName(CtInterface.class, i.getQualifiedName());
             case CtConstructor<?> c -> toName(CtConstructor.class, ((CtType<?>) c.getParent()).getQualifiedName(), toTypes(c.getParameters()));
-            case CtMethod<?> m -> toName(CtMethod.class, m.getSimpleName(), toTypes(m.getParameters()), ((CtType<?>) m.getParent()).getSimpleName());
+            case CtMethod<?> m -> toName(CtMethod.class, m.getSimpleName(), toTypes(m.getParameters()), ((CtType<?>) m.getParent()).getQualifiedName());
             default -> throw new IllegalArgumentException("Unsupported type: " + ctElement.getClass());
         };
     }
