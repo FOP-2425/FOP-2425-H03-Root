@@ -1,0 +1,68 @@
+[
+  {
+    "type": "class",
+    "typeName": "h03.Main",
+    "declaredConstructors": [
+      {"name": "h03.Main", "parameters": ""}
+    ],
+    "declaredMethods": [
+      {"name": "main", "parameters": "java.lang.String[]"}
+    ]
+  },
+  {
+    "type": "class",
+    "typeName": "h03.RobotsChallenge",
+    "declaredConstructors": [
+      {"name": "h03.RobotsChallenge", "parameters": "int, int, h03.robots.DoublePowerRobot[]"}
+    ],
+    "declaredMethods": [
+      {"name": "calculateStepsDiagonal", "parameters": ""},
+      {"name": "calculateStepsOverstep", "parameters": ""},
+      {"name": "calculateStepsTeleport", "parameters": ""},
+      {"name": "calculateSteps", "parameters": "h03.robots.MovementType"},
+      {"name": "findWinners", "parameters": ""}
+    ]
+  },
+  {
+    "type": "class",
+    "typeName": "h03.robots.DoublePowerRobot",
+    "declaredConstructors": [
+      {"name": "h03.robots.DoublePowerRobot", "parameters": "int, int, boolean"}
+    ],
+    "declaredMethods": [
+      {"name": "shuffle", "parameters": "int"},
+      {"name": "shuffle", "parameters": ""}
+    ]
+  },
+  {
+    "type": "class",
+    "typeName": "h03.robots.HackingRobot",
+    "declaredConstructors": [
+      {"name": "h03.robots.HackingRobot", "parameters": "int, int, boolean"}
+    ],
+    "declaredMethods": [
+      {"name": "getType", "parameters": ""},
+      {"name": "getNextType", "parameters": ""},
+      {"name": "getRandom", "parameters": "int"},
+      {"name": "shuffle", "parameters": "int"},
+      {"name": "shuffle", "parameters": ""}
+    ]
+  },
+  {
+    "type": "enum",
+    "typeName": "h03.robots.MovementType",
+    "declaredConstructors": [],
+    "declaredMethods": []
+  },
+  {
+    "type": "class",
+    "typeName": "h03.robots.VersatileRobot",
+    "declaredConstructors": [
+      {"name": "h03.robots.VersatileRobot", "parameters": "int, int, boolean, boolean"}
+    ],
+    "declaredMethods": [
+      {"name": "shuffle", "parameters": "int"},
+      {"name": "shuffle", "parameters": ""}
+    ]
+  }
+]
