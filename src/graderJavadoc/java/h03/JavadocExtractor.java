@@ -26,7 +26,7 @@ import static org.sourcegrade.jagr.api.testing.extension.TestCycleResolver.getTe
 @SuppressWarnings({"UnstableApiUsage", "NewClassNamingConvention", "unchecked"})
 public class JavadocExtractor<T extends Link & WithCtElement> {
 
-    private static final Set<String> GRADER_CLASSES = Set.of(
+    private static final Set<String> IGNORE_LIST = Set.of(
         "h03.H03_RubricProvider_Javadoc",
         "h03.JavadocExtractor",
         "h03.h3_1.HackingRobotTest",
@@ -43,11 +43,12 @@ public class JavadocExtractor<T extends Link & WithCtElement> {
         "h03.TestConstants",
         "h03.TestJsonGenerators",
         "h03.TestUtils",
+        "h03.Main",
         "h03.ExampleJUnitTest"
     );
     private static final List<BasicTypeLink> CLASSES = BasicPackageLink.of("h03", true).getTypes()
         .stream()
-        .filter(typeLink -> !GRADER_CLASSES.contains(typeLink.reflection().getName()))
+        .filter(typeLink -> !IGNORE_LIST.contains(typeLink.reflection().getName()))
         .toList();
     private static final String TU_ID = getTestCycle() != null ? getTestCycle().getSubmission().getInfo().split("_")[1] : "";
     private static final List<String> SOLUTION_MEMBERS;
