@@ -9,9 +9,11 @@ import h03.mock.HackingRobotClassTransformer;
 import h03.mock.RobotsChallengeClassTransformer;
 import org.sourcegrade.jagr.api.rubric.*;
 import org.sourcegrade.jagr.api.testing.RubricConfiguration;
+import org.tudalgo.algoutils.transform.SolutionMergingClassTransformer;
 import org.tudalgo.algoutils.tutor.general.json.JsonParameterSet;
 
 import static org.tudalgo.algoutils.tutor.general.jagr.RubricUtils.criterion;
+import static org.tudalgo.algoutils.tutor.general.jagr.RubricUtils.manualGrader;
 
 public class H03_RubricProvider implements RubricProvider {
 
@@ -241,12 +243,12 @@ public class H03_RubricProvider implements RubricProvider {
 
     private static final Criterion H3_4 = Criterion.builder().
         shortDescription("H3.4 | Documentation")
-        .maxPoints(3)
         .addChildCriteria(
-            criterion(
-                "Alle öffentlichen Klassen, Methoden und Konstruktoren sind mit JavaDoc korrekt dokumentiert."
-                , 3
-            )
+            Criterion.builder()
+                .shortDescription("Alle öffentlichen Klassen, Methoden und Konstruktoren sind mit JavaDoc korrekt dokumentiert.")
+                .maxPoints(3)
+                .grader(manualGrader(3))
+                .build()
         )
         .build();
 
@@ -270,5 +272,13 @@ public class H03_RubricProvider implements RubricProvider {
     public void configure(RubricConfiguration configuration) {
         configuration.addTransformer(new HackingRobotClassTransformer());
         configuration.addTransformer(new RobotsChallengeClassTransformer());
+        configuration.addTransformer(new SolutionMergingClassTransformer.Builder("h03",
+            "h03.Main",
+            "h03.RobotsChallenge",
+            "h03.robots.DoublePowerRobot",
+            "h03.robots.HackingRobot",
+            "h03.robots.MovementType",
+            "h03.robots.VersatileRobot")
+            .build());
     }
 }
