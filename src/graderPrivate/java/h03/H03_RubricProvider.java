@@ -23,6 +23,7 @@ public class H03_RubricProvider implements RubricProvider {
         .addChildCriteria(
             criterion(
                 "Die Enumeration MovementType ist korrekt deklariert und umfasst DIAGONAL, OVERSTEP, TELEPORT.",
+                JUnitTestRef.ofMethod(() -> MovementTypeTest.class.getDeclaredMethod("testEnum")),
                 JUnitTestRef.ofMethod(() -> MovementTypeTest.class.getDeclaredMethod("testEnumConstants"))
             )
         )
