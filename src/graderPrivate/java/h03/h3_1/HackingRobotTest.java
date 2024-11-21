@@ -21,10 +21,7 @@ import org.tudalgo.algoutils.transform.util.MethodHeader;
 import org.tudalgo.algoutils.tutor.general.assertions.Context;
 import org.tudalgo.algoutils.tutor.general.reflections.EnumConstantLink;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -150,36 +147,39 @@ public class HackingRobotTest {
     }
 
     @Test
-    public void testGetType() {
+    public void testGetType() throws ReflectiveOperationException {
+        executionHandler.disableMethodDelegation(HackingRobot.class.getDeclaredMethod("getType"));
+        Field typeField = HackingRobot.class.getDeclaredField("type");
+        typeField.trySetAccessible();
+
         int x = 2;
         int y = 2;
         Context.Builder<?> contextBuilder = contextBuilder()
             .add("x", x)
             .add("y", y);
-        Object hackingRobotInstance = getHackingRobotInstance(x, y, null, contextBuilder);
+        HackingRobot hackingRobotInstance = getHackingRobotInstance(x, y, null, contextBuilder);
         Context baseContext = contextBuilder.add("HackingRobot instance", hackingRobotInstance).build();
 
-        for (EnumConstantLink movementTypeConstantLink : MOVEMENT_TYPE_CONSTANTS.get()) {
-            Enum<?> movementTypeConstant = movementTypeConstantLink.constant();
-            HACKING_ROBOT_TYPE_LINK.get().set(hackingRobotInstance, movementTypeConstant);
+        for (MovementType movementType : MovementType.values()) {
+            typeField.set(hackingRobotInstance, movementType);
             Context context = contextBuilder()
                 .add(baseContext)
-                .add("Field 'type'", movementTypeConstant)
+                .add("Field 'type'", movementType)
                 .build();
-            assertCallEquals(movementTypeConstant, () -> HACKING_ROBOT_GET_TYPE_LINK.get().invoke(hackingRobotInstance), context, result ->
-                "The enum constant returned by getType is incorrect");
+            assertCallEquals(movementType, hackingRobotInstance::getType, context, result ->
+                "The enum constant returned by 'getType()' is incorrect");
         }
     }
 
     @ParameterizedTest
     @ValueSource(ints = {0, 1, 2})
-    public void testGetNextTypeNoMod(int offset) {
+    public void testGetNextTypeNoMod(int offset) throws ReflectiveOperationException {
         testGetNextTypeMod(offset);
     }
 
     @ParameterizedTest
     @ValueSource(ints = {3, 4, 5, 6})
-    public void testGetNextTypeMod(int offset) {
+    public void testGetNextTypeMod(int offset) throws ReflectiveOperationException {
         testGetNextType(offset);
     }
 
@@ -291,33 +291,32 @@ public class HackingRobotTest {
         return hackingRobotInstance;
     }
 
-    private void testGetNextType(int offset) {
+    private void testGetNextType(int offset) throws ReflectiveOperationException {
+        executionHandler.disableMethodDelegation(HackingRobot.class.getDeclaredMethod("getNextType"));
+        Field typeField = HackingRobot.class.getDeclaredField("type");
+        Field robotTypesField = HackingRobot.class.getDeclaredField("robotTypes");
+        typeField.trySetAccessible();
+        robotTypesField.trySetAccessible();
+
         int x = 2;
         int y = 2;
         Context.Builder<?> contextBuilder = contextBuilder()
             .add("x", x)
             .add("y", y);
-        Object hackingRobotInstance = getHackingRobotInstance(x, y, null, contextBuilder);
-        EnumConstantLink[] movementTypeConstantsLinks = MOVEMENT_TYPE_CONSTANTS.get();
-        Enum<?>[] movementTypeConstants = Arrays.stream(movementTypeConstantsLinks)
-            .map(EnumConstantLink::constant)
-            .toArray(Enum[]::new);
+        HackingRobot hackingRobotInstance = getHackingRobotInstance(x, y, null, contextBuilder);
+        MovementType[] movementTypeConstants = MovementType.values();
         Context context = contextBuilder
             .add("HackingRobot instance", hackingRobotInstance)
             .add("Field 'type'", movementTypeConstants[offset % movementTypeConstants.length])
             .add("Field 'robotTypes'", movementTypeConstants)
             .build();
 
-        // Everyone's tough 'til runtime type safety checks show up
-        Object typesafeRobotTypes = Array.newInstance(MOVEMENT_TYPE_LINK.get().reflection(), movementTypeConstants.length);
-        System.arraycopy(movementTypeConstants, 0, typesafeRobotTypes, 0, movementTypeConstants.length);
-
-        HACKING_ROBOT_TYPE_LINK.get().set(hackingRobotInstance, movementTypeConstants[offset % movementTypeConstants.length]);
-        HACKING_ROBOT_ROBOT_TYPES_LINK.get().set(hackingRobotInstance, typesafeRobotTypes);
+        typeField.set(hackingRobotInstance, movementTypeConstants[offset % movementTypeConstants.length]);
+        robotTypesField.set(hackingRobotInstance, movementTypeConstants);
         assertCallEquals(movementTypeConstants[(offset + 1) % movementTypeConstants.length],
-            () -> HACKING_ROBOT_GET_NEXT_TYPE_LINK.get().invoke(hackingRobotInstance),
+            hackingRobotInstance::getNextType,
             context,
-            result -> "The value returned by getNextType is incorrect");
+            result -> "The value returned by 'getNextType()' is incorrect");
     }
 
     private Triple<Context, Object, Boolean> testShuffleWithParams(int index) {
