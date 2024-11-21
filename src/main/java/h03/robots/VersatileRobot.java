@@ -38,11 +38,11 @@ public class VersatileRobot extends HackingRobot {
      */
     @Override
     public boolean shuffle(int itNr) {
-        boolean changed = !super.shuffle(itNr);
+        boolean changed = super.shuffle(itNr);
         if (getType() == MovementType.DIAGONAL) {
             setY(getX());
         }
-        return !changed;
+        return changed;
     }
 
     /**
