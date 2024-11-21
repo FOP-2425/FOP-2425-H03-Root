@@ -1,12 +1,14 @@
 package h03.h3_2;
 
 import fopbot.World;
+import h03.TestConstants;
 import h03.robots.HackingRobot;
 import h03.robots.MovementType;
 import h03.robots.VersatileRobot;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.objectweb.asm.Type;
 import org.sourcegrade.jagr.api.rubric.TestForSubmission;
 import org.tudalgo.algoutils.transform.SubmissionExecutionHandler;
@@ -17,10 +19,16 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.concurrent.TimeUnit;
 
 import static org.tudalgo.algoutils.tutor.general.assertions.Assertions2.*;
 
 @TestForSubmission
+@Timeout(
+    value = TestConstants.TEST_TIMEOUT_IN_SECONDS,
+    unit = TimeUnit.SECONDS,
+    threadMode = Timeout.ThreadMode.SEPARATE_THREAD
+)
 public class VersatileRobotTest {
 
     private final SubmissionExecutionHandler executionHandler = SubmissionExecutionHandler.getInstance();

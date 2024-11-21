@@ -2,6 +2,7 @@ package h03.h3_1;
 
 import fopbot.Robot;
 import fopbot.World;
+import h03.TestConstants;
 import h03.robots.HackingRobot;
 import h03.robots.MovementType;
 import kotlin.Triple;
@@ -9,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.objectweb.asm.Type;
@@ -23,12 +25,18 @@ import java.lang.reflect.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import static org.tudalgo.algoutils.tutor.general.assertions.Assertions2.*;
 
 @TestForSubmission
+@Timeout(
+    value = TestConstants.TEST_TIMEOUT_IN_SECONDS,
+    unit = TimeUnit.SECONDS,
+    threadMode = Timeout.ThreadMode.SEPARATE_THREAD
+)
 public class HackingRobotTest {
 
     private final SubmissionExecutionHandler executionHandler = SubmissionExecutionHandler.getInstance();

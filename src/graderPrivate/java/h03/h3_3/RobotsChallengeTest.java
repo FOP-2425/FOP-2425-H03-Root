@@ -3,6 +3,7 @@ package h03.h3_3;
 import fopbot.World;
 import h03.RobotsChallenge;
 import h03.MathMinMock;
+import h03.TestConstants;
 import h03.robots.DoublePowerRobot;
 import h03.robots.HackingRobot;
 import h03.robots.MovementType;
@@ -10,6 +11,7 @@ import kotlin.Pair;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sourcegrade.jagr.api.rubric.TestForSubmission;
@@ -22,10 +24,16 @@ import org.tudalgo.algoutils.tutor.general.json.JsonParameterSetTest;
 
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static org.tudalgo.algoutils.tutor.general.assertions.Assertions2.*;
 
 @TestForSubmission
+@Timeout(
+    value = TestConstants.TEST_TIMEOUT_IN_SECONDS,
+    unit = TimeUnit.SECONDS,
+    threadMode = Timeout.ThreadMode.SEPARATE_THREAD
+)
 public class RobotsChallengeTest {
 
     private final SubmissionExecutionHandler executionHandler = SubmissionExecutionHandler.getInstance();

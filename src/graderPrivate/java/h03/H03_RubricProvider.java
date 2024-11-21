@@ -5,8 +5,6 @@ import h03.h3_1.MovementTypeTest;
 import h03.h3_2.DoublePowerRobotTest;
 import h03.h3_2.VersatileRobotTest;
 import h03.h3_3.RobotsChallengeTest;
-import h03.mock.HackingRobotClassTransformer;
-import h03.mock.RobotsChallengeClassTransformer;
 import org.sourcegrade.jagr.api.rubric.*;
 import org.sourcegrade.jagr.api.testing.RubricConfiguration;
 import org.tudalgo.algoutils.transform.SolutionMergingClassTransformer;
@@ -20,8 +18,8 @@ import static org.tudalgo.algoutils.tutor.general.jagr.RubricUtils.manualGrader;
 
 public class H03_RubricProvider implements RubricProvider {
 
-    private static final Criterion H3_1_1 = Criterion.builder().
-        shortDescription("H3.1.1 | Movement types")
+    private static final Criterion H3_1_1 = Criterion.builder()
+        .shortDescription("H3.1.1 | Movement types")
         .maxPoints(1)
         .addChildCriteria(
             criterion(
@@ -32,8 +30,8 @@ public class H03_RubricProvider implements RubricProvider {
         )
         .build();
 
-    private static final Criterion H3_1_2 = Criterion.builder().
-        shortDescription("H3.1.2 | First class")
+    private static final Criterion H3_1_2 = Criterion.builder()
+        .shortDescription("H3.1.2 | First class")
         .maxPoints(1)
         .addChildCriteria(
             criterion(
@@ -44,8 +42,8 @@ public class H03_RubricProvider implements RubricProvider {
         )
         .build();
 
-    private static final Criterion H3_1_3 = Criterion.builder().
-        shortDescription("H3.1.3 | Robot under construction")
+    private static final Criterion H3_1_3 = Criterion.builder()
+        .shortDescription("H3.1.3 | Robot under construction")
         .maxPoints(3)
         .addChildCriteria(
             criterion(
@@ -63,8 +61,8 @@ public class H03_RubricProvider implements RubricProvider {
         )
         .build();
 
-    private static final Criterion H3_1_4 = Criterion.builder().
-        shortDescription("H3.1.4 | Access to robot types")
+    private static final Criterion H3_1_4 = Criterion.builder()
+        .shortDescription("H3.1.4 | Access to robot types")
         .maxPoints(3)
         .addChildCriteria(
             criterion(
@@ -82,8 +80,8 @@ public class H03_RubricProvider implements RubricProvider {
         )
         .build();
 
-    private static final Criterion H3_1_5 = Criterion.builder().
-        shortDescription("H3.1.5 | Swap type")
+    private static final Criterion H3_1_5 = Criterion.builder()
+        .shortDescription("H3.1.5 | Swap type")
         .addChildCriteria(
             criterion(
                 "Die Methode shuffle(int itNr) funktioniert korrekt und ändert den Robotertyp zufällig.",
@@ -96,8 +94,8 @@ public class H03_RubricProvider implements RubricProvider {
         )
         .build();
 
-    private static final Criterion H3_1_6 = Criterion.builder().
-        shortDescription("H3.1.6 | Are you sure of the swap?")
+    private static final Criterion H3_1_6 = Criterion.builder()
+        .shortDescription("H3.1.6 | Are you sure of the swap?")
         .addChildCriteria(
             criterion(
                 "Die Methode shuffle() ist korrekt überladen und garantiert, dass der Typ des Roboters geändert wird.",
@@ -107,8 +105,8 @@ public class H03_RubricProvider implements RubricProvider {
         )
         .build();
 
-    private static final Criterion H3_1 = Criterion.builder().
-        shortDescription("H3.1 | HackingRobot")
+    private static final Criterion H3_1 = Criterion.builder()
+        .shortDescription("H3.1 | HackingRobot")
         .maxPoints(12).addChildCriteria(
             H3_1_1,
             H3_1_2,
@@ -119,8 +117,8 @@ public class H03_RubricProvider implements RubricProvider {
         )
         .build();
 
-    private static final Criterion H3_2_1 = Criterion.builder().
-        shortDescription("H3.2.1 | DoublePowerRobot")
+    private static final Criterion H3_2_1 = Criterion.builder()
+        .shortDescription("H3.2.1 | DoublePowerRobot")
         .maxPoints(4).addChildCriteria(
             criterion(
                 "Die Klasse DoublePowerRobot ist korrekt deklariert mit den Attributen und Methoden.",
@@ -143,8 +141,8 @@ public class H03_RubricProvider implements RubricProvider {
         )
         .build();
 
-    private static final Criterion H3_2_2 = Criterion.builder().
-        shortDescription("H3.2.2 | VersatileRobot")
+    private static final Criterion H3_2_2 = Criterion.builder()
+        .shortDescription("H3.2.2 | VersatileRobot")
         .maxPoints(4).addChildCriteria(
             criterion(
                 "Die Klasse VersatileRobot ist korrekt deklariert.",
@@ -165,13 +163,13 @@ public class H03_RubricProvider implements RubricProvider {
         )
         .build();
 
-    private static final Criterion H3_2 = Criterion.builder().
-        shortDescription("H3.2 | Special Hacking Robots")
+    private static final Criterion H3_2 = Criterion.builder()
+        .shortDescription("H3.2 | Special Hacking Robots")
         .maxPoints(8).addChildCriteria(H3_2_1, H3_2_2)
         .build();
 
-    private static final Criterion H3_3_1 = Criterion.builder().
-        shortDescription("H3.3.1 | First things first")
+    private static final Criterion H3_3_1 = Criterion.builder()
+        .shortDescription("H3.3.1 | First things first")
         .maxPoints(1)
         .addChildCriteria(
             criterion(
@@ -181,8 +179,8 @@ public class H03_RubricProvider implements RubricProvider {
         )
         .build();
 
-    private static final Criterion H3_3_2 = Criterion.builder().
-        shortDescription("H3.3.2 | Participators over here")
+    private static final Criterion H3_3_2 = Criterion.builder()
+        .shortDescription("H3.3.2 | Participators over here")
         .maxPoints(2)
         .addChildCriteria(
             criterion(
@@ -196,8 +194,8 @@ public class H03_RubricProvider implements RubricProvider {
         )
         .build();
 
-    private static final Criterion H3_3_3 = Criterion.builder().
-        shortDescription("H3.3.3 | Quick maths")
+    private static final Criterion H3_3_3 = Criterion.builder()
+        .shortDescription("H3.3.3 | Quick maths")
         .maxPoints(3)
         .addChildCriteria(
             criterion(
@@ -215,8 +213,8 @@ public class H03_RubricProvider implements RubricProvider {
         )
         .build();
 
-    private static final Criterion H3_3_4 = Criterion.builder().
-        shortDescription("H3.3.4 | Let the show begin")
+    private static final Criterion H3_3_4 = Criterion.builder()
+        .shortDescription("H3.3.4 | Let the show begin")
         .maxPoints(3)
         .addChildCriteria(
             criterion(
@@ -234,8 +232,8 @@ public class H03_RubricProvider implements RubricProvider {
         )
         .build();
 
-    private static final Criterion H3_3 = Criterion.builder().
-        shortDescription("H3.3 | Let Robots Compete!")
+    private static final Criterion H3_3 = Criterion.builder()
+        .shortDescription("H3.3 | Let Robots Compete!")
         .maxPoints(9)
         .addChildCriteria(
             H3_3_1,
@@ -245,8 +243,8 @@ public class H03_RubricProvider implements RubricProvider {
         )
         .build();
 
-    private static final Criterion H3_4 = Criterion.builder().
-        shortDescription("H3.4 | Documentation")
+    private static final Criterion H3_4 = Criterion.builder()
+        .shortDescription("H3.4 | Documentation")
         .addChildCriteria(
             Criterion.builder()
                 .shortDescription("Alle öffentlichen Klassen, Methoden und Konstruktoren sind mit JavaDoc korrekt dokumentiert.")
@@ -274,8 +272,6 @@ public class H03_RubricProvider implements RubricProvider {
 
     @Override
     public void configure(RubricConfiguration configuration) {
-        configuration.addTransformer(new HackingRobotClassTransformer());
-        configuration.addTransformer(new RobotsChallengeClassTransformer());
         configuration.addTransformer(new SolutionMergingClassTransformer.Builder("h03",
                 "h03.Main",
                 "h03.RobotsChallenge",
