@@ -2,6 +2,8 @@ package h03.h3_1;
 
 import fopbot.Robot;
 import fopbot.World;
+import h03.robots.HackingRobot;
+import h03.robots.MovementType;
 import kotlin.Triple;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.BeforeAll;
@@ -9,7 +11,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
+import org.objectweb.asm.Type;
 import org.sourcegrade.jagr.api.rubric.TestForSubmission;
+import org.tudalgo.algoutils.transform.SubmissionExecutionHandler;
+import org.tudalgo.algoutils.transform.util.ClassHeader;
+import org.tudalgo.algoutils.transform.util.FieldHeader;
 import org.tudalgo.algoutils.tutor.general.assertions.Context;
 import org.tudalgo.algoutils.tutor.general.reflections.ConstructorLink;
 import org.tudalgo.algoutils.tutor.general.reflections.EnumConstantLink;
@@ -19,6 +25,7 @@ import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
@@ -35,40 +42,41 @@ public class HackingRobotTest {
 
     @Test
     public void testClassHeader() {
-        assertTrue((HACKING_ROBOT_LINK.get().modifiers() & Modifier.PUBLIC) != 0, emptyContext(), result ->
+        ClassHeader originalClassHeader = SubmissionExecutionHandler.getOriginalClassHeader(HackingRobot.class);
+
+        assertTrue(Modifier.isPublic(originalClassHeader.access()), emptyContext(), result ->
             "Class HackingRobot is not declared public");
-        assertEquals(Robot.class, HACKING_ROBOT_LINK.get().superType().reflection(), emptyContext(), result ->
+        assertEquals(Type.getInternalName(Robot.class), originalClassHeader.superName(), emptyContext(), result ->
             "Class HackingRobot does not have correct superclass");
     }
 
     @Test
-    public void testFields() {
-        assertTrue((HACKING_ROBOT_TYPE_LINK.get().modifiers() & Modifier.PRIVATE) != 0, emptyContext(), result ->
+    public void testFields() throws NoSuchFieldException {
+        Set<FieldHeader> originalFieldHeaders = SubmissionExecutionHandler.getOriginalFieldHeaders(HackingRobot.class);
+
+        FieldHeader typeFieldHeader = originalFieldHeaders.stream()
+            .filter(fieldHeader -> fieldHeader.name().equals("type"))
+            .findFirst()
+            .orElseThrow(() -> new NoSuchFieldException("Field 'type' does not exist"));
+        assertTrue(Modifier.isPrivate(typeFieldHeader.access()), emptyContext(), result ->
             "Field type in HackingRobot is not declared private");
-        assertFalse((HACKING_ROBOT_TYPE_LINK.get().modifiers() & Modifier.STATIC) != 0, emptyContext(), result ->
+        assertFalse(Modifier.isStatic(typeFieldHeader.access()), emptyContext(), result ->
             "Field type in HackingRobot is declared static");
-        assertEquals(MOVEMENT_TYPE_LINK.get().reflection(), HACKING_ROBOT_TYPE_LINK.get().type().reflection(), emptyContext(), result ->
+        assertEquals(Type.getDescriptor(MovementType.class), typeFieldHeader.descriptor(), emptyContext(), result ->
             "Field type in HackingRobot does not have correct type");
 
-        assertTrue((HACKING_ROBOT_ROBOT_TYPES_LINK.get().modifiers() & Modifier.PRIVATE) != 0, emptyContext(), result ->
+        FieldHeader robotTypes = originalFieldHeaders.stream()
+            .filter(fieldHeader -> fieldHeader.name().equals("robotTypes"))
+            .findFirst()
+            .orElseThrow(() -> new NoSuchFieldException("Field 'robotTypes' does not exist"));
+        assertTrue(Modifier.isPrivate(robotTypes.access()), emptyContext(), result ->
             "Field robotTypes in HackingRobot is not declared private");
-        assertFalse((HACKING_ROBOT_ROBOT_TYPES_LINK.get().modifiers() & Modifier.STATIC) != 0, emptyContext(), result ->
+        assertFalse(Modifier.isStatic(robotTypes.access()), emptyContext(), result ->
             "Field robotTypes in HackingRobot is declared static");
-        assertEquals(MOVEMENT_TYPE_LINK.get().reflection().arrayType(), HACKING_ROBOT_ROBOT_TYPES_LINK.get().type().reflection(), emptyContext(), result ->
+        assertEquals(Type.getDescriptor(MovementType[].class), robotTypes.descriptor(), emptyContext(), result ->
             "Field robotTypes in HackingRobot does not have correct type");
 
-//        Context.Builder<?> contextBuilder = contextBuilder()
-//            .add("x", 0)
-//            .add("y", 0);
-//        Object hackingRobotInstance = getHackingRobotInstance(0, 0, null, contextBuilder);
-//        List<String> expectedRobotTypes = List.of("TELEPORT", "OVERSTEP", "DIAGONAL");
-//        List<String> actualRobotTypes = Arrays.stream(HACKING_ROBOT_ROBOT_TYPES_LINK.get().<Enum<?>[]>get(hackingRobotInstance))
-//            .map(Enum::name)
-//            .toList();
-//        Context context = contextBuilder.add("HackingRobot instance", hackingRobotInstance).build();
-//        // FIXME: impossible to test default value when field is modified in constructor
-//        assertEquals(expectedRobotTypes, actualRobotTypes, context, result ->
-//            "Value of field robotTypes in HackingRobot does not equal expected one");
+        // NOTE: it's impossible to test for default value when field is modified in constructor
     }
 
     @Test
