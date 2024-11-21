@@ -6,6 +6,7 @@ import h03.robots.HackingRobot;
 import h03.robots.MovementType;
 import kotlin.Triple;
 import org.jetbrains.annotations.Nullable;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -16,11 +17,13 @@ import org.sourcegrade.jagr.api.rubric.TestForSubmission;
 import org.tudalgo.algoutils.transform.SubmissionExecutionHandler;
 import org.tudalgo.algoutils.transform.util.ClassHeader;
 import org.tudalgo.algoutils.transform.util.FieldHeader;
+import org.tudalgo.algoutils.transform.util.MethodHeader;
 import org.tudalgo.algoutils.tutor.general.assertions.Context;
-import org.tudalgo.algoutils.tutor.general.reflections.ConstructorLink;
 import org.tudalgo.algoutils.tutor.general.reflections.EnumConstantLink;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -35,9 +38,18 @@ import static org.tudalgo.algoutils.tutor.general.assertions.Assertions2.*;
 @TestForSubmission
 public class HackingRobotTest {
 
+    private final SubmissionExecutionHandler executionHandler = SubmissionExecutionHandler.getInstance();
+
     @BeforeAll
     public static void setup() {
         World.setSize(5, 5);
+    }
+
+    @AfterEach
+    public void tearDown() {
+        executionHandler.resetMethodInvocationLogging();
+        executionHandler.resetMethodSubstitution();
+        executionHandler.resetMethodDelegation();
     }
 
     @Test
@@ -80,20 +92,29 @@ public class HackingRobotTest {
     }
 
     @Test
-    public void testConstructorHeader() {
-        ConstructorLink constructorLink = HACKING_ROBOT_CONSTRUCTOR_LINK.get();  // implicitly asserts param types
-        assertTrue((constructorLink.modifiers() & Modifier.PUBLIC) != 0, emptyContext(), result ->
-            "Constructor in HackingRobot is not declared public");
+    public void testConstructorHeader() throws NoSuchMethodException {
+        Constructor<HackingRobot> constructor = HackingRobot.class.getDeclaredConstructor(int.class, int.class, boolean.class);
+        MethodHeader constructorMethodHeader = new MethodHeader(constructor);
+        MethodHeader originalConstructorHeader = SubmissionExecutionHandler.getOriginalMethodHeaders(HackingRobot.class)
+            .stream()
+            .filter(constructorMethodHeader::equals)
+            .findFirst()
+            .orElseThrow(() -> new NoSuchMethodException("Constructor 'HackingRobot(int, int, boolean)' does not exist"));
+
+        assertTrue(Modifier.isPublic(originalConstructorHeader.access()), emptyContext(), result ->
+            "Constructor 'HackingRobot(int, int, boolean)' is not declared public");
     }
 
     @Test
-    public void testConstructorSuperCall() {
+    public void testConstructorSuperCall() throws NoSuchMethodException {
+        executionHandler.disableMethodDelegation(HackingRobot.class.getDeclaredConstructor(int.class, int.class, boolean.class));
+
         int x = 2;
         int y = 2;
         Context.Builder<?> contextBuilder = contextBuilder()
             .add("x", x)
             .add("y", y);
-        Robot hackingRobotInstance = (Robot) getHackingRobotInstance(x, y, false, contextBuilder);
+        Robot hackingRobotInstance = getHackingRobotInstance(x, y, false, contextBuilder);
         Context context = contextBuilder.add("HackingRobot instance", hackingRobotInstance).build();
 
         assertEquals(x, hackingRobotInstance.getX(), context, result ->
@@ -104,7 +125,11 @@ public class HackingRobotTest {
 
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
-    public void testConstructorSetsFields(boolean order) {
+    public void testConstructorSetsFields(boolean order) throws ReflectiveOperationException {
+        executionHandler.disableMethodDelegation(HackingRobot.class.getDeclaredConstructor(int.class, int.class, boolean.class));
+        Field robotTypesField = HackingRobot.class.getDeclaredField("robotTypes");
+        robotTypesField.trySetAccessible();
+
         List<String> expectedRobotTypes = order ?
             List.of("DIAGONAL", "TELEPORT", "OVERSTEP") :
             List.of("OVERSTEP", "DIAGONAL", "TELEPORT");
@@ -113,11 +138,11 @@ public class HackingRobotTest {
         Context.Builder<?> contextBuilder = contextBuilder()
             .add("x", x)
             .add("y", y);
-        Robot hackingRobotInstance = (Robot) getHackingRobotInstance(x, y, order, contextBuilder);
+        Robot hackingRobotInstance = getHackingRobotInstance(x, y, order, contextBuilder);
         Context context = contextBuilder.add("HackingRobot instance", hackingRobotInstance).build();
 
         assertEquals(expectedRobotTypes,
-            Arrays.stream(HACKING_ROBOT_ROBOT_TYPES_LINK.get().<Enum<?>[]>get(hackingRobotInstance))
+            Arrays.stream((MovementType[]) robotTypesField.get(hackingRobotInstance))
                 .map(Enum::name)
                 .toList(),
             context,
@@ -236,29 +261,25 @@ public class HackingRobotTest {
      * @param contextBuilder an optional context builder to append the {@code order} parameter to
      * @return a new HackingRobot instance
      */
-    private Object getHackingRobotInstance(int x, int y, @Nullable Boolean order, @Nullable Context.Builder<?> contextBuilder) {
+    private HackingRobot getHackingRobotInstance(int x, int y, @Nullable Boolean order, @Nullable Context.Builder<?> contextBuilder) {
         Consumer<Boolean> appendContext = b -> {
             if (contextBuilder != null) {
                 contextBuilder.add("order", b);
             }
         };
-        Object hackingRobotInstance;
+        HackingRobot hackingRobotInstance;
 
         if (order != null) {
-            try {
-                hackingRobotInstance = HACKING_ROBOT_CONSTRUCTOR_LINK.get().invoke(x, y, order);
-                appendContext.accept(order);
-            } catch (Throwable t) {
-                throw new RuntimeException(t);
-            }
+            hackingRobotInstance = new HackingRobot(x, y, order);
+            appendContext.accept(order);
         } else {
             try {
-                hackingRobotInstance = HACKING_ROBOT_CONSTRUCTOR_LINK.get().invoke(x, y, false);
+                hackingRobotInstance = new HackingRobot(x, y, false);
                 appendContext.accept(false);
             } catch (Throwable t1) {
                 System.err.printf("Could not invoke HackingRobot's constructor with params (%d, %d, false):%n%s%n", x, y, t1.getMessage());
                 try {
-                    hackingRobotInstance = HACKING_ROBOT_CONSTRUCTOR_LINK.get().invoke(x, y, true);
+                    hackingRobotInstance = new HackingRobot(x, y, true);
                     appendContext.accept(true);
                 } catch (Throwable t2) {
                     System.err.printf("Could not invoke HackingRobot's constructor with params (%d, %d, true):%n%s%n", x, y, t2.getMessage());
