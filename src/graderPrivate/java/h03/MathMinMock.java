@@ -1,11 +1,11 @@
-package h03.mock;
+package h03;
 
 import kotlin.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class RobotsChallengeAuxMock {
+public class MathMinMock {
 
     public static final List<Pair<Integer, Integer>> MIN_INVOCATIONS = new ArrayList<>();
 

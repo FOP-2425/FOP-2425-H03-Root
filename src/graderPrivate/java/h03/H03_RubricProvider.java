@@ -10,8 +10,11 @@ import h03.mock.RobotsChallengeClassTransformer;
 import org.sourcegrade.jagr.api.rubric.*;
 import org.sourcegrade.jagr.api.testing.RubricConfiguration;
 import org.tudalgo.algoutils.transform.SolutionMergingClassTransformer;
+import org.tudalgo.algoutils.transform.util.MethodHeader;
 import org.tudalgo.algoutils.tutor.general.json.JsonParameterSet;
 
+import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
+import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.tudalgo.algoutils.tutor.general.jagr.RubricUtils.criterion;
 import static org.tudalgo.algoutils.tutor.general.jagr.RubricUtils.manualGrader;
 
@@ -274,12 +277,24 @@ public class H03_RubricProvider implements RubricProvider {
         configuration.addTransformer(new HackingRobotClassTransformer());
         configuration.addTransformer(new RobotsChallengeClassTransformer());
         configuration.addTransformer(new SolutionMergingClassTransformer.Builder("h03",
-            "h03.Main",
-            "h03.RobotsChallenge",
-            "h03.robots.DoublePowerRobot",
-            "h03.robots.HackingRobot",
-            "h03.robots.MovementType",
-            "h03.robots.VersatileRobot")
+                "h03.Main",
+                "h03.RobotsChallenge",
+                "h03.robots.DoublePowerRobot",
+                "h03.robots.HackingRobot",
+                "h03.robots.MovementType",
+                "h03.robots.VersatileRobot")
+            .addMethodReplacement(
+                new MethodHeader("java/lang/Math", 0, "min", "(II)I", null, null),
+                new MethodHeader("h03/MathMinMock", ACC_PUBLIC | ACC_STATIC, "min", "(II)I", null, null))
+            .addMethodReplacement(
+                new MethodHeader("java/lang/Math", 0, "min", "(FF)F", null, null),
+                new MethodHeader("h03/MathMinMock", ACC_PUBLIC | ACC_STATIC, "min", "(FF)F", null, null))
+            .addMethodReplacement(
+                new MethodHeader("java/lang/Math", 0, "min", "(JJ)J", null, null),
+                new MethodHeader("h03/MathMinMock", ACC_PUBLIC | ACC_STATIC, "min", "(JJ)J", null, null))
+            .addMethodReplacement(
+                new MethodHeader("java/lang/Math", 0, "min", "(DD)D", null, null),
+                new MethodHeader("h03/MathMinMock", ACC_PUBLIC | ACC_STATIC, "min", "(DD)D", null, null))
             .build());
     }
 }

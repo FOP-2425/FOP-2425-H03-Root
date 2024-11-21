@@ -1,194 +1,211 @@
 package h03.h3_3;
 
 import fopbot.World;
-import h03.mock.RobotsChallengeAuxMock;
+import h03.RobotsChallenge;
+import h03.MathMinMock;
+import h03.robots.DoublePowerRobot;
+import h03.robots.HackingRobot;
+import h03.robots.MovementType;
 import kotlin.Pair;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.Mockito;
 import org.sourcegrade.jagr.api.rubric.TestForSubmission;
-import org.sourcegrade.jagr.api.testing.extension.JagrExecutionCondition;
+import org.tudalgo.algoutils.transform.SubmissionExecutionHandler;
+import org.tudalgo.algoutils.transform.util.ClassHeader;
+import org.tudalgo.algoutils.transform.util.Invocation;
 import org.tudalgo.algoutils.tutor.general.assertions.Context;
 import org.tudalgo.algoutils.tutor.general.json.JsonParameterSet;
 import org.tudalgo.algoutils.tutor.general.json.JsonParameterSetTest;
-import org.tudalgo.algoutils.tutor.general.reflections.EnumConstantLink;
-import org.tudalgo.algoutils.tutor.general.reflections.MethodLink;
-import org.tudalgo.algoutils.tutor.general.reflections.TypeLink;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.util.*;
-import java.util.function.Supplier;
 
-import static h03.Links.*;
 import static org.tudalgo.algoutils.tutor.general.assertions.Assertions2.*;
 
 @TestForSubmission
 public class RobotsChallengeTest {
 
+    private final SubmissionExecutionHandler executionHandler = SubmissionExecutionHandler.getInstance();
+
+    private static Field robotsField;
+    private static Field beginField;
+    private static Field goalField;
+    private static Field winThresholdField;
+    private static Constructor<?> robotsChallengeConstructor;
+    private static Method calculateStepsDiagonalMethod;
+    private static Method calculateStepsOverstepMethod;
+    private static Method calculateStepsTeleportMethod;
+    private static Method calculateStepsMethod;
+    private static Method findWinnersMethod;
+
     @BeforeAll
     public static void setup() {
         World.setSize(5, 5);
         World.setDelay(0);
+
+        try {
+            robotsField = RobotsChallenge.class.getDeclaredField("robots");
+            beginField = RobotsChallenge.class.getDeclaredField("begin");
+            goalField = RobotsChallenge.class.getDeclaredField("goal");
+            winThresholdField = RobotsChallenge.class.getDeclaredField("winThreshold");
+            robotsChallengeConstructor = RobotsChallenge.class.getDeclaredConstructor(int.class, int.class, DoublePowerRobot[].class);
+            calculateStepsDiagonalMethod = RobotsChallenge.class.getDeclaredMethod("calculateStepsDiagonal");
+            calculateStepsOverstepMethod = RobotsChallenge.class.getDeclaredMethod("calculateStepsOverstep");
+            calculateStepsTeleportMethod = RobotsChallenge.class.getDeclaredMethod("calculateStepsTeleport");
+            calculateStepsMethod = RobotsChallenge.class.getDeclaredMethod("calculateSteps", MovementType.class);
+            findWinnersMethod = RobotsChallenge.class.getDeclaredMethod("findWinners");
+
+            robotsField.trySetAccessible();
+            beginField.trySetAccessible();
+            goalField.trySetAccessible();
+            winThresholdField.trySetAccessible();
+        } catch (ReflectiveOperationException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @AfterEach
+    public void tearDown() {
+        executionHandler.resetMethodInvocationLogging();
+        executionHandler.resetMethodSubstitution();
+        executionHandler.resetMethodDelegation();
     }
 
     @Test
     public void testClassHeader() {
-        TypeLink robotsChallengeLink = ROBOTS_CHALLENGE_LINK.get();
+        ClassHeader originalClassHeader = SubmissionExecutionHandler.getOriginalClassHeader(RobotsChallenge.class);
 
-        assertTrue((robotsChallengeLink.modifiers() & Modifier.PUBLIC) != 0, emptyContext(), result ->
+        assertTrue(Modifier.isPublic(originalClassHeader.access()), emptyContext(), result ->
             "Class RobotsChallenge was not declared public");
     }
 
     @ParameterizedTest
     @ValueSource(ints = {10, 15})
-    public void testConstructor(int begin) {
+    public void testConstructor(int begin) throws ReflectiveOperationException {
+        executionHandler.disableMethodDelegation(robotsChallengeConstructor);
+
         int goal = 5;
-        Object[] robots = (Object[]) Array.newInstance(DOUBLE_POWER_ROBOT_LINK.get().reflection(), 0);
+        DoublePowerRobot[] robots = new DoublePowerRobot[0];
         Context context = contextBuilder()
             .add("begin", begin)
             .add("goal", goal)
             .add("robots", robots)
             .build();
 
-        Object instance = callObject(() -> ROBOTS_CHALLENGE_CONSTRUCTOR_LINK.get().invoke(begin, goal, robots), context, result ->
+        Object instance = callObject(() -> new RobotsChallenge(begin, goal, robots), context, result ->
             "An exception occurred while invoking constructor of class RobotsChallenge");
-        assertEquals(begin / 2, ROBOTS_CHALLENGE_BEGIN_LINK.get().get(instance), context, result ->
+        assertEquals(begin / 2, beginField.get(instance), context, result ->
             "Value of field 'begin' is incorrect");
-        assertEquals(goal, ROBOTS_CHALLENGE_GOAL_LINK.get().get(instance), context, result ->
+        assertEquals(goal, goalField.get(instance), context, result ->
             "Value of field 'goal' is incorrect");
-        assertSame(robots, ROBOTS_CHALLENGE_ROBOTS_LINK.get().get(instance), context, result ->
+        assertSame(robots, robotsField.get(instance), context, result ->
             "Value of field 'robots' is incorrect");
     }
 
     @Test
-    public void testWinThreshold() {
+    public void testWinThreshold() throws ReflectiveOperationException {
+        executionHandler.disableMethodDelegation(robotsChallengeConstructor);
+
         int begin = 10;
         int goal = 5;
-        Object[] robots = (Object[]) Array.newInstance(DOUBLE_POWER_ROBOT_LINK.get().reflection(), 0);
+        DoublePowerRobot[] robots = new DoublePowerRobot[0];
         Context context = contextBuilder()
             .add("begin", begin)
             .add("goal", goal)
             .add("robots", robots)
             .build();
 
-        Object instance = callObject(() -> ROBOTS_CHALLENGE_CONSTRUCTOR_LINK.get().invoke(begin, goal, robots), context, result ->
+        Object instance = callObject(() -> new RobotsChallenge(begin, goal, robots), context, result ->
             "An exception occurred while invoking constructor of class RobotsChallenge");
-        assertEquals(2, ROBOTS_CHALLENGE_WIN_THRESHOLD_LINK.get().get(instance), context, result ->
+        assertEquals(2, winThresholdField.get(instance), context, result ->
             "Value of field 'winThreshold' is incorrect");
     }
 
     @ParameterizedTest
     @JsonParameterSetTest("/h03/CalculateStepsDiagonalDataSet.generated.json")
     public void testCalculateStepsDiagonal(JsonParameterSet params) {
-        testCalculateStepsAllTypes(params, ROBOTS_CHALLENGE_CALCULATE_STEPS_DIAGONAL);
+        testCalculateStepsAllTypes(params, calculateStepsDiagonalMethod);
     }
 
     @ParameterizedTest
     @JsonParameterSetTest("/h03/CalculateStepsOverstepDataSet.generated.json")
     public void testCalculateStepsOverstep(JsonParameterSet params) {
-        testCalculateStepsAllTypes(params, ROBOTS_CHALLENGE_CALCULATE_STEPS_OVERSTEP);
+        testCalculateStepsAllTypes(params, calculateStepsOverstepMethod);
     }
 
     @ParameterizedTest
     @JsonParameterSetTest("/h03/CalculateStepsTeleportDataSet.generated.json")
     public void testCalculateStepsTeleport(JsonParameterSet params) {
-        testCalculateStepsAllTypes(params, ROBOTS_CHALLENGE_CALCULATE_STEPS_TELEPORT);
+        testCalculateStepsAllTypes(params, calculateStepsTeleportMethod);
     }
 
     @Test
-    public void testFindWinnersCalc() {
+    public void testFindWinnersCalc() throws ReflectiveOperationException {
+        executionHandler.disableMethodDelegation(findWinnersMethod);
+
         int begin = 2;
         int goal = 5;
-        Enum<?>[] movementTypes = Arrays.stream(MOVEMENT_TYPE_CONSTANTS.get())
-            .map(EnumConstantLink::constant)
-            .toArray(Enum[]::new);
+        MovementType[] movementTypes = MovementType.values();
         for (int i = 0; i < 3; i++) {
             final int finalI = i;
-            Object[] robots = (Object[]) Array.newInstance(DOUBLE_POWER_ROBOT_LINK.get().reflection(), 1);
-            robots[0] = Mockito.mock(DOUBLE_POWER_ROBOT_LINK.get().reflection(), invocation -> {
-                if (invocation.getMethod().equals(HACKING_ROBOT_GET_TYPE_LINK.get().reflection())) {
-                    return movementTypes[finalI % movementTypes.length];
-                } else if (invocation.getMethod().equals(HACKING_ROBOT_GET_NEXT_TYPE_LINK.get().reflection())) {
-                    return movementTypes[(finalI + 1) % movementTypes.length];
-                } else {
-                    return invocation.callRealMethod();
-                }
-            });
+            executionHandler.substituteMethod(HackingRobot.class.getDeclaredMethod("getType"),
+                invocation -> movementTypes[finalI % movementTypes.length]);
+            executionHandler.substituteMethod(HackingRobot.class.getDeclaredMethod("getNextType"),
+                invocation -> movementTypes[(finalI + 1) % movementTypes.length]);
+            executionHandler.resetMethodInvocationLogging();
+            executionHandler.enableMethodInvocationLogging(calculateStepsMethod);
+
+            DoublePowerRobot[] robots = new DoublePowerRobot[] {new DoublePowerRobot(0, 0, false)};
             Context context = contextBuilder()
                 .add("begin", begin)
                 .add("goal", goal)
                 .add("robots", robots)
                 .build();
 
-            Set<String> calculateStepsArgs = new HashSet<>();
-            Object robotsChallengeInstance = Mockito.mock(ROBOTS_CHALLENGE_LINK.get().reflection(), invocation -> {
-                if (invocation.getMethod().equals(ROBOTS_CHALLENGE_CALCULATE_STEPS.get().reflection())) {
-                    calculateStepsArgs.add(invocation.<Enum<?>>getArgument(0).name());
-                }
-                return invocation.callRealMethod();
-            });
-            ROBOTS_CHALLENGE_BEGIN_LINK.get().set(robotsChallengeInstance, begin);
-            ROBOTS_CHALLENGE_GOAL_LINK.get().set(robotsChallengeInstance, goal);
-            ROBOTS_CHALLENGE_ROBOTS_LINK.get().set(robotsChallengeInstance, robots);
-            ROBOTS_CHALLENGE_WIN_THRESHOLD_LINK.get().set(robotsChallengeInstance, 2);
+            RobotsChallenge robotsChallengeInstance = new RobotsChallenge(begin * 2, goal, robots);
 
-            call(() -> ROBOTS_CHALLENGE_FIND_WINNERS.get().invoke(robotsChallengeInstance), context, result ->
-                "An exception occurred while invoking findWinners");
-            assertEquals(2, calculateStepsArgs.size(), context, result -> "calculateSteps was not called exactly twice");
-            assertEquals(Set.of(movementTypes[i % movementTypes.length].name(), movementTypes[(i + 1) % movementTypes.length].name()),
-                calculateStepsArgs,
+            call(robotsChallengeInstance::findWinners, context, result -> "An exception occurred while invoking findWinners");
+            List<Invocation> invocations = executionHandler.getInvocationsForMethod(calculateStepsMethod);
+            assertEquals(2, invocations.size(), context, result -> "calculateSteps was not called exactly twice");
+            assertEquals(List.of(movementTypes[i % movementTypes.length], movementTypes[(i + 1) % movementTypes.length]),
+                invocations.stream()
+                    .map(invocation -> invocation.getParameter(0, MovementType.class))
+                    .toList(),
                 context,
                 result -> "calculateSteps was not called with <robot>.getType() and <robot>.getNextType()");
         }
     }
 
     @Test
-    @ExtendWith(JagrExecutionCondition.class)
-    public void testFindWinnersMin() {
+    public void testFindWinnersMin() throws ReflectiveOperationException {
+        executionHandler.disableMethodDelegation(findWinnersMethod);
+        executionHandler.substituteMethod(calculateStepsMethod,
+            invocation -> invocation.getParameter(0, MovementType.class).ordinal());
+
         int begin = 2;
         int goal = 5;
-        Enum<?>[] movementTypes = Arrays.stream(MOVEMENT_TYPE_CONSTANTS.get())
-            .map(EnumConstantLink::constant)
-            .toArray(Enum[]::new);
+        MovementType[] movementTypes = MovementType.values();
         for (int i = 0; i < 3; i++) {
             final int finalI = i;
-            Object[] robots = (Object[]) Array.newInstance(DOUBLE_POWER_ROBOT_LINK.get().reflection(), 1);
-            robots[0] = Mockito.mock(DOUBLE_POWER_ROBOT_LINK.get().reflection(), invocation -> {
-                if (invocation.getMethod().equals(HACKING_ROBOT_GET_TYPE_LINK.get().reflection())) {
-                    return movementTypes[finalI % movementTypes.length];
-                } else if (invocation.getMethod().equals(HACKING_ROBOT_GET_NEXT_TYPE_LINK.get().reflection())) {
-                    return movementTypes[(finalI + 1) % movementTypes.length];
-                } else {
-                    return invocation.callRealMethod();
-                }
-            });
+            executionHandler.substituteMethod(HackingRobot.class.getDeclaredMethod("getType"),
+                invocation -> movementTypes[finalI % movementTypes.length]);
+            executionHandler.substituteMethod(HackingRobot.class.getDeclaredMethod("getNextType"),
+                invocation -> movementTypes[(finalI + 1) % movementTypes.length]);
+
+            DoublePowerRobot[] robots = new DoublePowerRobot[] {new DoublePowerRobot(0, 0, false)};
             Context context = contextBuilder()
                 .add("begin", begin)
                 .add("goal", goal)
                 .add("robots", robots)
                 .build();
+            RobotsChallenge robotsChallengeInstance = new RobotsChallenge(begin * 2, goal, robots);
 
-
-            Object robotsChallengeInstance = Mockito.mock(ROBOTS_CHALLENGE_LINK.get().reflection(), invocation -> {
-                if (invocation.getMethod().equals(ROBOTS_CHALLENGE_CALCULATE_STEPS.get().reflection())) {
-                    return invocation.<Enum<?>>getArgument(0).ordinal();
-                } else {
-                    return invocation.callRealMethod();
-                }
-            });
-            ROBOTS_CHALLENGE_BEGIN_LINK.get().set(robotsChallengeInstance, begin);
-            ROBOTS_CHALLENGE_GOAL_LINK.get().set(robotsChallengeInstance, goal);
-            ROBOTS_CHALLENGE_ROBOTS_LINK.get().set(robotsChallengeInstance, robots);
-            ROBOTS_CHALLENGE_WIN_THRESHOLD_LINK.get().set(robotsChallengeInstance, 2);
-
-            List<Pair<Integer, Integer>> minInvocations = RobotsChallengeAuxMock.MIN_INVOCATIONS;
-            minInvocations.clear();
-            call(() -> ROBOTS_CHALLENGE_FIND_WINNERS.get().invoke(robotsChallengeInstance), context, result ->
-                "An exception occurred while invoking findWinners");
+            MathMinMock.MIN_INVOCATIONS.clear();
+            call(robotsChallengeInstance::findWinners, context, result -> "An exception occurred while invoking findWinners");
+            List<Pair<Integer, Integer>> minInvocations = new ArrayList<>(MathMinMock.MIN_INVOCATIONS);
             assertTrue(!minInvocations.isEmpty(), context, result -> "Math.min was not called at least once");
             Pair<Integer, Integer> expectedArgs = new Pair<>(finalI % movementTypes.length, (finalI + 1) % movementTypes.length);
             assertTrue(
@@ -206,50 +223,56 @@ public class RobotsChallengeTest {
 
     @Test
     public void testFindWinnersReturn() throws Throwable {
-        int begin = 2;
-        int goal = 5;
-        Enum<?>[] movementTypes = Arrays.stream(MOVEMENT_TYPE_CONSTANTS.get())
-            .map(EnumConstantLink::constant)
-            .toArray(Enum[]::new);
-        Object[] robots = (Object[]) Array.newInstance(DOUBLE_POWER_ROBOT_LINK.get().reflection(), 3);
-        for (int i = 0; i < robots.length; i++) {
-            final int finalI = i;
-            robots[i] = Mockito.mock(DOUBLE_POWER_ROBOT_LINK.get().reflection(), invocation -> {
-                if (invocation.getMethod().equals(HACKING_ROBOT_GET_TYPE_LINK.get().reflection())) {
-                    return movementTypes[finalI % movementTypes.length];
-                } else if (invocation.getMethod().equals(HACKING_ROBOT_GET_NEXT_TYPE_LINK.get().reflection())) {
-                    return movementTypes[(finalI + 1) % movementTypes.length];
+        MovementType[] movementTypes = MovementType.values();
+        DoublePowerRobot[] robots = new DoublePowerRobot[] {
+            new DoublePowerRobot(0, 0, false),
+            new DoublePowerRobot(0, 0, false),
+            new DoublePowerRobot(0, 0, false)
+        };
+        executionHandler.substituteMethod(HackingRobot.class.getDeclaredMethod("getType"),
+            invocation -> {
+                if (invocation.getInstance() == robots[0]) {
+                    return movementTypes[0];
+                } else if (invocation.getInstance() == robots[1]) {
+                    return movementTypes[1];
+                } else if (invocation.getInstance() == robots[2]) {
+                    return movementTypes[2];
                 } else {
-                    return invocation.callRealMethod();
+                    return null;
                 }
             });
-        }
+        executionHandler.substituteMethod(HackingRobot.class.getDeclaredMethod("getNextType"),
+            invocation -> {
+                if (invocation.getInstance() == robots[0]) {
+                    return movementTypes[1];
+                } else if (invocation.getInstance() == robots[1]) {
+                    return movementTypes[2];
+                } else if (invocation.getInstance() == robots[2]) {
+                    return movementTypes[0];
+                } else {
+                    return null;
+                }
+            });
+        executionHandler.substituteMethod(calculateStepsMethod,
+            invocation -> invocation.getParameter(0, MovementType.class).ordinal() * 3);
+        executionHandler.disableMethodDelegation(findWinnersMethod);
+
+        int begin = 2;
+        int goal = 5;
         Context context = contextBuilder()
             .add("begin", begin)
             .add("goal", goal)
             .add("robots", robots)
             .build();
+        RobotsChallenge robotsChallengeInstance = new RobotsChallenge(begin * 2, goal, robots);
 
-        Object robotsChallengeInstance = Mockito.mock(ROBOTS_CHALLENGE_LINK.get().reflection(), invocation -> {
-            if (invocation.getMethod().equals(ROBOTS_CHALLENGE_CALCULATE_STEPS.get().reflection())) {
-                return invocation.<Enum<?>>getArgument(0).ordinal() * 3;
-            } else {
-                return invocation.callRealMethod();
-            }
-        });
-        ROBOTS_CHALLENGE_BEGIN_LINK.get().set(robotsChallengeInstance, begin);
-        ROBOTS_CHALLENGE_GOAL_LINK.get().set(robotsChallengeInstance, goal);
-        ROBOTS_CHALLENGE_ROBOTS_LINK.get().set(robotsChallengeInstance, robots);
-        ROBOTS_CHALLENGE_WIN_THRESHOLD_LINK.get().set(robotsChallengeInstance, 2);
-
-        Object[] returnValue = callObject(() -> ROBOTS_CHALLENGE_FIND_WINNERS.get().invoke(robotsChallengeInstance), context, result ->
+        DoublePowerRobot[] returnValue = callObject(robotsChallengeInstance::findWinners, context, result ->
             "An exception occurred while invoking findWinners");
         assertEquals(robots.length, returnValue.length, context, result -> "Returned array has incorrect length");
         int a = 0;
-        for (int i = 0; i < robots.length; i++) {
-            if (HACKING_ROBOT_GET_TYPE_LINK.get().invoke(robots[i]) == MOVEMENT_TYPE_DIAGONAL_LINK.get().constant() ||
-                HACKING_ROBOT_GET_NEXT_TYPE_LINK.get().invoke(robots[i]) == MOVEMENT_TYPE_DIAGONAL_LINK.get().constant()) {
-                assertSame(robots[i], returnValue[a++], context, result -> "Robot was not found in array / at wrong index");
+        for (DoublePowerRobot robot : robots) {
+            if (robot.getType() == MovementType.DIAGONAL || robot.getNextType() == MovementType.DIAGONAL) {
+                assertSame(robot, returnValue[a++], context, result -> "Robot was not found in array / at wrong index");
             }
         }
         for (; a < robots.length; a++) {
@@ -257,13 +280,15 @@ public class RobotsChallengeTest {
         }
     }
 
-    private void testCalculateStepsAllTypes(JsonParameterSet params, Supplier<MethodLink> methodLinkSupplier) {
+    private void testCalculateStepsAllTypes(JsonParameterSet params, Method method) {
+        executionHandler.disableMethodDelegation(method);
+
         Context context = params.toContext("expected");
-        Object[] robots = (Object[]) Array.newInstance(DOUBLE_POWER_ROBOT_LINK.get().reflection(), 0);
-        Object instance = callObject(() -> ROBOTS_CHALLENGE_CONSTRUCTOR_LINK.get().invoke(params.getInt("begin"), params.getInt("goal"), robots),
+        DoublePowerRobot[] robots = new DoublePowerRobot[0];
+        RobotsChallenge instance = callObject(() -> new RobotsChallenge(params.getInt("begin"), params.getInt("goal"), robots),
             context, result -> "An exception occurred while invoking constructor of class RobotsChallenge");
 
-        assertCallEquals(params.getInt("expected"), () -> methodLinkSupplier.get().invoke(instance), context, result ->
-            methodLinkSupplier.get().name() + " returned an incorrect value");
+        assertCallEquals(params.getInt("expected"), () -> method.invoke(instance), context, result ->
+            method.getName() + " returned an incorrect value");
     }
 }
