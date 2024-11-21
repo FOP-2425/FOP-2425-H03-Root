@@ -19,7 +19,6 @@ import org.tudalgo.algoutils.transform.util.ClassHeader;
 import org.tudalgo.algoutils.transform.util.FieldHeader;
 import org.tudalgo.algoutils.transform.util.MethodHeader;
 import org.tudalgo.algoutils.tutor.general.assertions.Context;
-import org.tudalgo.algoutils.tutor.general.reflections.EnumConstantLink;
 
 import java.lang.reflect.*;
 import java.util.Arrays;
@@ -37,9 +36,34 @@ public class HackingRobotTest {
 
     private final SubmissionExecutionHandler executionHandler = SubmissionExecutionHandler.getInstance();
 
+    private static Field typeField;
+    private static Field robotTypesField;
+    private static Constructor<?> hackingRobotConstructor;
+    private static Method getTypeMethod;
+    private static Method getNextTypeMethod;
+    private static Method getRandomMethod;
+    private static Method shuffleMethod;
+    private static Method shuffleWithParamMethod;
+
     @BeforeAll
     public static void setup() {
         World.setSize(5, 5);
+
+        try {
+            typeField = HackingRobot.class.getDeclaredField("type");
+            robotTypesField = HackingRobot.class.getDeclaredField("robotTypes");
+            hackingRobotConstructor = HackingRobot.class.getDeclaredConstructor(int.class, int.class, boolean.class);
+            getTypeMethod = HackingRobot.class.getDeclaredMethod("getType");
+            getNextTypeMethod = HackingRobot.class.getDeclaredMethod("getNextType");
+            getRandomMethod = HackingRobot.class.getDeclaredMethod("getRandom", int.class);
+            shuffleMethod = HackingRobot.class.getDeclaredMethod("shuffle");
+            shuffleWithParamMethod = HackingRobot.class.getDeclaredMethod("shuffle", int.class);
+
+            typeField.setAccessible(true);
+            robotTypesField.setAccessible(true);
+        } catch (ReflectiveOperationException e) {
+            e.printStackTrace();
+        }
     }
 
     @AfterEach
@@ -90,8 +114,7 @@ public class HackingRobotTest {
 
     @Test
     public void testConstructorHeader() throws NoSuchMethodException {
-        Constructor<HackingRobot> constructor = HackingRobot.class.getDeclaredConstructor(int.class, int.class, boolean.class);
-        MethodHeader constructorMethodHeader = new MethodHeader(constructor);
+        MethodHeader constructorMethodHeader = new MethodHeader(hackingRobotConstructor);
         MethodHeader originalConstructorHeader = SubmissionExecutionHandler.getOriginalMethodHeaders(HackingRobot.class)
             .stream()
             .filter(constructorMethodHeader::equals)
@@ -103,8 +126,8 @@ public class HackingRobotTest {
     }
 
     @Test
-    public void testConstructorSuperCall() throws NoSuchMethodException {
-        executionHandler.disableMethodDelegation(HackingRobot.class.getDeclaredConstructor(int.class, int.class, boolean.class));
+    public void testConstructorSuperCall() {
+        executionHandler.disableMethodDelegation(hackingRobotConstructor);
 
         int x = 2;
         int y = 2;
@@ -123,9 +146,7 @@ public class HackingRobotTest {
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
     public void testConstructorSetsFields(boolean order) throws ReflectiveOperationException {
-        executionHandler.disableMethodDelegation(HackingRobot.class.getDeclaredConstructor(int.class, int.class, boolean.class));
-        Field robotTypesField = HackingRobot.class.getDeclaredField("robotTypes");
-        robotTypesField.trySetAccessible();
+        executionHandler.disableMethodDelegation(hackingRobotConstructor);
 
         List<String> expectedRobotTypes = order ?
             List.of("DIAGONAL", "TELEPORT", "OVERSTEP") :
@@ -148,9 +169,7 @@ public class HackingRobotTest {
 
     @Test
     public void testGetType() throws ReflectiveOperationException {
-        executionHandler.disableMethodDelegation(HackingRobot.class.getDeclaredMethod("getType"));
-        Field typeField = HackingRobot.class.getDeclaredField("type");
-        typeField.trySetAccessible();
+        executionHandler.disableMethodDelegation(getTypeMethod);
 
         int x = 2;
         int y = 2;
@@ -208,20 +227,18 @@ public class HackingRobotTest {
 
     @ParameterizedTest
     @ValueSource(ints = {0, 1, 2})
-    public void testShuffleWithParams_SetField(int index) {
-        Enum<?>[] movementTypeConstants = Arrays.stream(MOVEMENT_TYPE_CONSTANTS.get())
-            .map(EnumConstantLink::constant)
-            .toArray(Enum[]::new);
-        Triple<Context, Object, Boolean> invocationResult = testShuffleWithParams(index);
+    public void testShuffleWithParams_SetField(int index) throws ReflectiveOperationException {
+        MovementType[] movementTypeConstants = MovementType.values();
+        Triple<Context, HackingRobot, Boolean> invocationResult = testShuffleWithParams(index);
 
-        assertEquals(movementTypeConstants[index], HACKING_ROBOT_TYPE_LINK.get().get(invocationResult.getSecond()), invocationResult.getFirst(), result ->
+        assertEquals(movementTypeConstants[index], typeField.get(invocationResult.getSecond()), invocationResult.getFirst(), result ->
             "Field 'type' in HackingRobot was not set to the correct value");
     }
 
     @ParameterizedTest
     @ValueSource(ints = {0, 1, 2})
-    public void testShuffleWithParams_ReturnValue(int index) {
-        Triple<Context, Object, Boolean> invocationResult = testShuffleWithParams(index);
+    public void testShuffleWithParams_ReturnValue(int index) throws ReflectiveOperationException {
+        Triple<Context, HackingRobot, Boolean> invocationResult = testShuffleWithParams(index);
 
         assertEquals(index != 0, invocationResult.getThird(), invocationResult.getFirst(), result ->
             "Method 'shuffle(int)' in HackingRobot did not return the expected value");
@@ -252,7 +269,7 @@ public class HackingRobotTest {
     }
 
     /**
-     * Create a new HackingRobot object using {@link h03.Links#HACKING_ROBOT_CONSTRUCTOR_LINK}.
+     * Create a new HackingRobot instance.
      *
      * @param x              the x coordinate
      * @param y              the y coordinate
@@ -292,11 +309,7 @@ public class HackingRobotTest {
     }
 
     private void testGetNextType(int offset) throws ReflectiveOperationException {
-        executionHandler.disableMethodDelegation(HackingRobot.class.getDeclaredMethod("getNextType"));
-        Field typeField = HackingRobot.class.getDeclaredField("type");
-        Field robotTypesField = HackingRobot.class.getDeclaredField("robotTypes");
-        typeField.trySetAccessible();
-        robotTypesField.trySetAccessible();
+        executionHandler.disableMethodDelegation(getNextTypeMethod);
 
         int x = 2;
         int y = 2;
@@ -319,29 +332,26 @@ public class HackingRobotTest {
             result -> "The value returned by 'getNextType()' is incorrect");
     }
 
-    private Triple<Context, Object, Boolean> testShuffleWithParams(int index) {
-        Object hackingRobotInstance = Mockito.mock(HACKING_ROBOT_LINK.get().reflection(), invocation -> {
-            if (invocation.getMethod().equals(HACKING_ROBOT_GET_RANDOM_LINK.get().reflection())) {
-                return index;
-            } else {
-                return invocation.callRealMethod();
-            }
-        });
-        Enum<?>[] movementTypeConstants = Arrays.stream(MOVEMENT_TYPE_CONSTANTS.get())
-            .map(EnumConstantLink::constant)
-            .toArray(Enum[]::new);
-        Object typesafeRobotTypes = Array.newInstance(MOVEMENT_TYPE_LINK.get().reflection(), movementTypeConstants.length);
-        System.arraycopy(movementTypeConstants, 0, typesafeRobotTypes, 0, movementTypeConstants.length);
+    private Triple<Context, HackingRobot, Boolean> testShuffleWithParams(int index) throws ReflectiveOperationException {
+        executionHandler.substituteMethod(getRandomMethod, invocation -> index);
+        executionHandler.disableMethodDelegation(shuffleWithParamMethod);
 
-        HACKING_ROBOT_TYPE_LINK.get().set(hackingRobotInstance, movementTypeConstants[0]);
-        HACKING_ROBOT_ROBOT_TYPES_LINK.get().set(hackingRobotInstance, typesafeRobotTypes);
-        Context context = contextBuilder()
+        MovementType[] movementTypeConstants = MovementType.values();
+        Context.Builder<?> contextBuilder = contextBuilder()
+            .add("x", 0)
+            .add("y", 0);
+        HackingRobot hackingRobotInstance = getHackingRobotInstance(0, 0, null, contextBuilder);
+        contextBuilder.add("HackingRobot instance", hackingRobotInstance);
+
+        typeField.set(hackingRobotInstance, movementTypeConstants[0]);
+        robotTypesField.set(hackingRobotInstance, movementTypeConstants);
+        Context context = contextBuilder
             .add("Field 'type'", movementTypeConstants[0])
             .add("Field 'robotTypes'", movementTypeConstants)
             .add("getRandom(int) return value", index)
             .build();
 
-        return new Triple<>(context, hackingRobotInstance, callObject(() -> HACKING_ROBOT_SHUFFLE1_LINK.get().invoke(hackingRobotInstance, 1), context, result ->
+        return new Triple<>(context, hackingRobotInstance, callObject(() -> hackingRobotInstance.shuffle(1), context, result ->
             "An exception occurred while invoking shuffle(int)"));
     }
 }
