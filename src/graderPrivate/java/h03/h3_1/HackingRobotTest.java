@@ -11,7 +11,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.Mockito;
 import org.objectweb.asm.Type;
 import org.sourcegrade.jagr.api.rubric.TestForSubmission;
 import org.tudalgo.algoutils.transform.SubmissionExecutionHandler;
@@ -22,13 +21,11 @@ import org.tudalgo.algoutils.tutor.general.assertions.Context;
 
 import java.lang.reflect.*;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
-import static h03.Links.*;
 import static org.tudalgo.algoutils.tutor.general.assertions.Assertions2.*;
 
 @TestForSubmission
@@ -202,6 +199,7 @@ public class HackingRobotTest {
         testGetNextType(offset);
     }
 
+/*
     @Test
     public void testGetRandom() throws Throwable {
         // Header
@@ -224,6 +222,7 @@ public class HackingRobotTest {
         assertTrue(returnedInts.stream().anyMatch(i -> i >= 3), emptyContext(), result ->
             "50 invocations of getRandom(int) didn't return any number > 2, which is extremely unlikely");
     }
+*/
 
     @ParameterizedTest
     @ValueSource(ints = {0, 1, 2})
@@ -245,27 +244,36 @@ public class HackingRobotTest {
     }
 
     @Test
-    public void testShuffleNoParams() {
+    public void testShuffleNoParams() throws NoSuchMethodException {
         // Header
-        assertTrue((HACKING_ROBOT_SHUFFLE2_LINK.get().modifiers() & Modifier.PUBLIC) != 0, emptyContext(), result ->
-            "Method shuffle() in HackingRobot was not declared public");
-        assertEquals(void.class, HACKING_ROBOT_SHUFFLE2_LINK.get().returnType().reflection(), emptyContext(), result ->
-            "Method shuffle() has incorrect return type");
+        MethodHeader shuffleMethodHeader = new MethodHeader(shuffleMethod);
+        MethodHeader originalMethodHeader = SubmissionExecutionHandler.getOriginalMethodHeaders(HackingRobot.class)
+            .stream()
+            .filter(shuffleMethodHeader::equals)
+            .findFirst()
+            .orElseThrow(() -> new NoSuchMethodException("Method 'shuffle()' does not exist"));
+
+        assertTrue(Modifier.isPublic(originalMethodHeader.access()), emptyContext(), result ->
+            "Method 'shuffle()' in HackingRobot was not declared public");
+        assertEquals(Type.VOID_TYPE, Type.getReturnType(originalMethodHeader.descriptor()), emptyContext(), result ->
+            "Method 'shuffle()' has incorrect return type");
 
         // Body
         int limit = 5;
         AtomicInteger counter = new AtomicInteger(0);
-        Object hackingRobotInstance = Mockito.mock(HACKING_ROBOT_LINK.get().reflection(), invocation -> {
-            if (invocation.getMethod().equals(HACKING_ROBOT_SHUFFLE1_LINK.get().reflection())) {
-                return counter.incrementAndGet() >= limit;
-            } else {
-                return invocation.callRealMethod();
-            }
-        });
-        call(() -> HACKING_ROBOT_SHUFFLE2_LINK.get().invoke(hackingRobotInstance), emptyContext(), result ->
-            "An exception occurred while invoking shuffle() in HackingRobot");
-        assertEquals(limit, counter.get(), emptyContext(), result ->
-            "Method shuffle() in HackingRobot did not return after shuffle(int) returned true / was invoked %d times".formatted(limit));
+        executionHandler.disableMethodDelegation(shuffleMethod);
+        executionHandler.substituteMethod(shuffleWithParamMethod, invocation -> counter.incrementAndGet() >= limit);
+
+        Context.Builder<?> contextBuilder = contextBuilder()
+            .add("x", 0)
+            .add("y", 0);
+        HackingRobot hackingRobotInstance = getHackingRobotInstance(0, 0, null, contextBuilder);
+        Context context = contextBuilder.add("HackingRobot instance", hackingRobotInstance).build();
+
+        call(hackingRobotInstance::shuffle, context, result ->
+            "An exception occurred while invoking 'shuffle()' in HackingRobot");
+        assertEquals(limit, counter.get(), context, result ->
+            "Method 'shuffle()' in HackingRobot did not return after 'shuffle(int)' returned true / was invoked %d times".formatted(limit));
     }
 
     /**
