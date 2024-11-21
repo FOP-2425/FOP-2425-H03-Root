@@ -1,60 +1,114 @@
 package h03.h3_2;
 
 import fopbot.World;
-import h03.mock.HackingRobotClassTransformer;
-import h03.mock.HackingRobotMock;
+import h03.robots.DoublePowerRobot;
+import h03.robots.HackingRobot;
+import h03.robots.MovementType;
+import net.bytebuddy.jar.asm.Type;
+import org.apache.commons.lang3.function.TriConsumer;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sourcegrade.jagr.api.rubric.TestForSubmission;
-import org.sourcegrade.jagr.api.testing.extension.JagrExecutionCondition;
+import org.tudalgo.algoutils.transform.SubmissionExecutionHandler;
+import org.tudalgo.algoutils.transform.util.ClassHeader;
+import org.tudalgo.algoutils.transform.util.FieldHeader;
+import org.tudalgo.algoutils.transform.util.MethodHeader;
 import org.tudalgo.algoutils.tutor.general.assertions.Context;
-import org.tudalgo.algoutils.tutor.general.reflections.EnumConstantLink;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.BiFunction;
+import java.util.Set;
 
-import static h03.Links.*;
 import static org.tudalgo.algoutils.tutor.general.assertions.Assertions2.*;
 
 @TestForSubmission
 public class DoublePowerRobotTest {
 
+    private final SubmissionExecutionHandler executionHandler = SubmissionExecutionHandler.getInstance();
+
+    private static Field doublePowerTypesField;
+    private static Constructor<?> versatileRobotConstructor;
+    private static Method shuffleMethod;
+    private static Method shuffleWithParamMethod;
+
     @BeforeAll
     public static void setup() {
         World.setSize(5, 5);
+
+        try {
+            doublePowerTypesField = DoublePowerRobot.class.getDeclaredField("doublePowerTypes");
+            versatileRobotConstructor = DoublePowerRobot.class.getDeclaredConstructor(int.class, int.class, boolean.class);
+            shuffleMethod = DoublePowerRobot.class.getDeclaredMethod("shuffle");
+            shuffleWithParamMethod = DoublePowerRobot.class.getDeclaredMethod("shuffle", int.class);
+
+            doublePowerTypesField.trySetAccessible();
+        } catch (ReflectiveOperationException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @AfterEach
+    public void tearDown() {
+        executionHandler.resetMethodInvocationLogging();
+        executionHandler.resetMethodSubstitution();
+        executionHandler.resetMethodDelegation();
     }
 
     @Test
     public void testClassHeader() {
-        assertTrue((DOUBLE_POWER_ROBOT_LINK.get().modifiers() & Modifier.PUBLIC) != 0, emptyContext(), result ->
+        ClassHeader originalClassHeader = SubmissionExecutionHandler.getOriginalClassHeader(DoublePowerRobot.class);
+
+        assertTrue(Modifier.isPublic(originalClassHeader.access()), emptyContext(), result ->
             "Class DoublePowerRobot is not declared public");
-        assertEquals(HACKING_ROBOT_LINK.get().reflection(), DOUBLE_POWER_ROBOT_LINK.get().superType().reflection(), emptyContext(), result ->
+        assertEquals(Type.getInternalName(HackingRobot.class), originalClassHeader.superName(), emptyContext(), result ->
             "Class DoublePowerRobot does not have correct superclass");
     }
 
     @Test
-    public void testFields() {
-        assertEquals(MOVEMENT_TYPE_LINK.get().reflection().arrayType(), DOUBLE_POWER_ROBOT_DOUBLE_POWER_TYPES_LINK.get().type().reflection(), emptyContext(), result ->
-            "Field doublePowerTypes in DoublePowerRobot does not have correct type");
+    public void testFields() throws NoSuchFieldException {
+        FieldHeader doublePowerTypesFieldHeader = new FieldHeader(doublePowerTypesField);
+        FieldHeader originalFieldHeader = SubmissionExecutionHandler.getOriginalFieldHeaders(DoublePowerRobot.class)
+            .stream()
+            .filter(doublePowerTypesFieldHeader::equals)
+            .findFirst()
+            .orElseThrow(() -> new NoSuchFieldException("Field 'doublePowerTypes' does not exist"));
+
+        assertEquals(Type.getDescriptor(MovementType[].class), originalFieldHeader.descriptor(), emptyContext(), result ->
+            "Field 'doublePowerTypes' in DoublePowerRobot does not have correct type");
     }
 
     @Test
-    public void testMethodHeaders() {
-        call(DOUBLE_POWER_ROBOT_SHUFFLE1_LINK::get, emptyContext(), result -> "Method shuffle(int) does not exist in DoublePowerRobot");
-        call(DOUBLE_POWER_ROBOT_SHUFFLE2_LINK::get, emptyContext(), result -> "Method shuffle() does not exist in DoublePowerRobot");
+    public void testMethodHeaders() throws NoSuchMethodException {
+        Set<MethodHeader> originalMethodHeaders = SubmissionExecutionHandler.getOriginalMethodHeaders(DoublePowerRobot.class);
+
+        MethodHeader shuffleMethodHeader = new MethodHeader(shuffleMethod);
+        originalMethodHeaders.stream()
+            .filter(shuffleMethodHeader::equals)
+            .findFirst()
+            .orElseThrow(() -> new NoSuchMethodException("Method 'shuffle()' does not exist"));
+
+        MethodHeader shuffleWithParamMethodHeader = new MethodHeader(shuffleWithParamMethod);
+        originalMethodHeaders.stream()
+            .filter(shuffleWithParamMethodHeader::equals)
+            .findFirst()
+            .orElseThrow(() -> new NoSuchMethodException("Method 'shuffle(int)' does not exist"));
     }
 
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
-    public void testConstructorSetsField(boolean order) {
+    public void testConstructorSetsField(boolean order) throws ReflectiveOperationException {
+        executionHandler.disableMethodDelegation(versatileRobotConstructor);
+
         List<String> expectedDoublePowerTypes = order ?
-            List.of(MOVEMENT_TYPE_DIAGONAL_LINK.get().name(), MOVEMENT_TYPE_TELEPORT_LINK.get().name()) :
-            List.of(MOVEMENT_TYPE_OVERSTEP_LINK.get().name(), MOVEMENT_TYPE_DIAGONAL_LINK.get().name());
+            List.of("DIAGONAL", "TELEPORT") :
+            List.of("OVERSTEP", "DIAGONAL");
         int x = 2;
         int y = 2;
         Context context = contextBuilder()
@@ -63,9 +117,9 @@ public class DoublePowerRobotTest {
             .add("order", order)
             .build();
 
-        Object instance = callObject(() -> DOUBLE_POWER_ROBOT_CONSTRUCTOR_LINK.get().invoke(x, y, order), context, result ->
+        DoublePowerRobot instance = callObject(() -> new DoublePowerRobot(x, y, order), context, result ->
             "An exception occurred while invoking constructor of class DoublePowerRobot");
-        List<String> actualDoublePowerTypes = Arrays.stream(DOUBLE_POWER_ROBOT_DOUBLE_POWER_TYPES_LINK.get().<Enum<?>[]>get(instance))
+        List<String> actualDoublePowerTypes = Arrays.stream((MovementType[]) doublePowerTypesField.get(instance))
             .map(Enum::name)
             .toList();
         assertEquals(expectedDoublePowerTypes, actualDoublePowerTypes, context, result ->
@@ -73,67 +127,40 @@ public class DoublePowerRobotTest {
     }
 
     @ParameterizedTest
-    @ExtendWith(JagrExecutionCondition.class)
     @ValueSource(ints = {0, 1, 2, 3})
-    public void testShuffleWithParams(int offset) {
-        EnumConstantLink[] movementTypeLinks = MOVEMENT_TYPE_CONSTANTS.get();
-        BiFunction<String, Object[], ?> methodAction = (methodName, args) -> switch (methodName) {
-            case "getType" -> movementTypeLinks[offset % movementTypeLinks.length].name();
-            case "getNextType" -> movementTypeLinks[(offset + 1) % movementTypeLinks.length].name();
-            case "getRandom" -> 1;
-            case "shuffle" -> false;
-            default -> throw new IllegalStateException("Unexpected method: " + methodName);
-        };
-        HackingRobotClassTransformer.useMock(true);
-        HackingRobotMock.getInstance().setMethodAction(methodAction);
+    public void testShuffleWithParams(int offset) throws ReflectiveOperationException {
+        testShuffle(offset, shuffleWithParamMethod, (instance, context, shuffleReturnValue) -> {
+            boolean returnValue = callObject(() -> instance.shuffle(1), context, result ->
+                "An exception occurred while invoking 'shuffle(int)'");
 
-        int x = 2;
-        int y = 2;
-        boolean order = false;
-        Context context = contextBuilder()
-            .add("x", x)
-            .add("y", y)
-            .add("order", order)
-            .add("super.getType() return value", methodAction.apply("getType", new Object[0]))
-            .add("super.getNextType() return value", methodAction.apply("getNextType", new Object[0]))
-            .add("super.getRandom(int) return value", methodAction.apply("getRandom", new Object[0]))
-            .add("super.shuffle(int) return value", methodAction.apply("shuffle", new Object[0]))
-            .build();
-        try {
-            Object instance = callObject(() -> DOUBLE_POWER_ROBOT_CONSTRUCTOR_LINK.get().invoke(x, y, order), context, result ->
-                "An exception occurred while invoking constructor of class DoublePowerRobot");
-            boolean returnValue = callObject(() -> DOUBLE_POWER_ROBOT_SHUFFLE1_LINK.get().invoke(instance, 1), context, result ->
-                "An exception occurred while invoking shuffle(int)");
-
-            assertEquals(methodAction.apply("shuffle", new Object[0]), returnValue, context, result ->
-                "Return value of shuffle(int) is incorrect");
-            assertEquals(methodAction.apply("getType", new Object[0]),
-                DOUBLE_POWER_ROBOT_DOUBLE_POWER_TYPES_LINK.get().<Enum<?>[]>get(instance)[0].name(),
-                context,
-                result -> "Value of doublePowerTypes[0] is incorrect");
-            assertEquals(methodAction.apply("getNextType", new Object[0]),
-                DOUBLE_POWER_ROBOT_DOUBLE_POWER_TYPES_LINK.get().<Enum<?>[]>get(instance)[1].name(),
-                context,
-                result -> "Value of doublePowerTypes[1] is incorrect");
-        } finally {
-            HackingRobotClassTransformer.useMock(false);
-        }
+            assertEquals(shuffleReturnValue, returnValue, context, result -> "Return value of 'shuffle(int)' is incorrect");
+        });
     }
 
     @ParameterizedTest
-    @ExtendWith(JagrExecutionCondition.class)
     @ValueSource(ints = {0, 1, 2, 3})
-    public void testShuffleNoParams(int offset) {
-        EnumConstantLink[] movementTypeLinks = MOVEMENT_TYPE_CONSTANTS.get();
-        BiFunction<String, Object[], ?> methodAction = (methodName, args) -> switch (methodName) {
-            case "getType" -> movementTypeLinks[offset % movementTypeLinks.length].name();
-            case "getNextType" -> movementTypeLinks[(offset + 1) % movementTypeLinks.length].name();
-            case "getRandom" -> 1;
-            case "shuffle" -> false;
-            default -> throw new IllegalStateException("Unexpected method: " + methodName);
-        };
-        HackingRobotClassTransformer.useMock(true);
-        HackingRobotMock.getInstance().setMethodAction(methodAction);
+    public void testShuffleNoParams(int offset) throws ReflectiveOperationException {
+        testShuffle(offset, shuffleMethod, (instance, context, ignored) -> {
+            call(instance::shuffle, context, result -> "An exception occurred while invoking 'shuffle()'");
+        });
+    }
+
+    private void testShuffle(int offset, Method shuffleMethod, TriConsumer<DoublePowerRobot, Context, Boolean> instanceConsumer) throws ReflectiveOperationException {
+        MovementType[] movementTypes = MovementType.values();
+        MovementType getTypeReturnValue = movementTypes[offset % movementTypes.length];
+        MovementType getNextTypeReturnValue = movementTypes[(offset + 1) % movementTypes.length];
+        int getRandomReturnValue = 1;
+        boolean shuffleReturnValue = false;
+        executionHandler.substituteMethod(HackingRobot.class.getDeclaredMethod("getType"),
+            invocation -> getTypeReturnValue);
+        executionHandler.substituteMethod(HackingRobot.class.getDeclaredMethod("getNextType"),
+            invocation -> getNextTypeReturnValue);
+        executionHandler.substituteMethod(HackingRobot.class.getDeclaredMethod("getRandom", int.class),
+            invocation -> getRandomReturnValue);
+        executionHandler.substituteMethod(HackingRobot.class.getDeclaredMethod("shuffle", int.class),
+            invocation -> shuffleReturnValue);
+        executionHandler.substituteMethod(HackingRobot.class.getDeclaredMethod("shuffle"), invocation -> null);
+        executionHandler.disableMethodDelegation(shuffleMethod);
 
         int x = 2;
         int y = 2;
@@ -142,27 +169,23 @@ public class DoublePowerRobotTest {
             .add("x", x)
             .add("y", y)
             .add("order", order)
-            .add("super.getType() return value", methodAction.apply("getType", new Object[0]))
-            .add("super.getNextType() return value", methodAction.apply("getNextType", new Object[0]))
-            .add("super.getRandom(int) return value", methodAction.apply("getRandom", new Object[0]))
-            .add("super.shuffle(int) return value", methodAction.apply("shuffle", new Object[0]))
+            .add("super.getType() return value", getTypeReturnValue)
+            .add("super.getNextType() return value", getNextTypeReturnValue)
+            .add("super.getRandom(int) return value", getRandomReturnValue)
+            .add("super.shuffle(int) return value", shuffleReturnValue)
             .build();
-        try {
-            Object instance = callObject(() -> DOUBLE_POWER_ROBOT_CONSTRUCTOR_LINK.get().invoke(x, y, order), context, result ->
-                "An exception occurred while invoking constructor of class DoublePowerRobot");
-            call(() -> DOUBLE_POWER_ROBOT_SHUFFLE2_LINK.get().invoke(instance), context, result ->
-                "An exception occurred while invoking shuffle()");
 
-            assertEquals(methodAction.apply("getType", new Object[0]),
-                DOUBLE_POWER_ROBOT_DOUBLE_POWER_TYPES_LINK.get().<Enum<?>[]>get(instance)[0].name(),
-                context,
-                result -> "Value of doublePowerTypes[0] is incorrect");
-            assertEquals(methodAction.apply("getNextType", new Object[0]),
-                DOUBLE_POWER_ROBOT_DOUBLE_POWER_TYPES_LINK.get().<Enum<?>[]>get(instance)[1].name(),
-                context,
-                result -> "Value of doublePowerTypes[1] is incorrect");
-        } finally {
-            HackingRobotClassTransformer.useMock(false);
-        }
+        DoublePowerRobot instance = callObject(() -> new DoublePowerRobot(x, y, order), context, result ->
+            "An exception occurred while invoking constructor of class DoublePowerRobot");
+        instanceConsumer.accept(instance, context, shuffleReturnValue);
+
+        assertEquals(getTypeReturnValue,
+            ((MovementType[]) doublePowerTypesField.get(instance))[0],
+            context,
+            result -> "Value of doublePowerTypes[0] is incorrect");
+        assertEquals(getNextTypeReturnValue,
+            ((MovementType[]) doublePowerTypesField.get(instance))[1],
+            context,
+            result -> "Value of doublePowerTypes[1] is incorrect");
     }
 }
