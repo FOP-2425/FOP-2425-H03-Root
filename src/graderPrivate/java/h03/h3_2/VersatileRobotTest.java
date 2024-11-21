@@ -1,158 +1,131 @@
 package h03.h3_2;
 
-import fopbot.Robot;
 import fopbot.World;
-import h03.mock.HackingRobotClassTransformer;
-import h03.mock.HackingRobotMock;
+import h03.robots.HackingRobot;
+import h03.robots.MovementType;
+import h03.robots.VersatileRobot;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.objectweb.asm.Type;
 import org.sourcegrade.jagr.api.rubric.TestForSubmission;
-import org.sourcegrade.jagr.api.testing.extension.JagrExecutionCondition;
+import org.tudalgo.algoutils.transform.SubmissionExecutionHandler;
+import org.tudalgo.algoutils.transform.util.ClassHeader;
 import org.tudalgo.algoutils.tutor.general.assertions.Context;
-import org.tudalgo.algoutils.tutor.general.reflections.TypeLink;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.function.BiFunction;
 
-import static h03.Links.*;
 import static org.tudalgo.algoutils.tutor.general.assertions.Assertions2.*;
 
 @TestForSubmission
 public class VersatileRobotTest {
 
+    private final SubmissionExecutionHandler executionHandler = SubmissionExecutionHandler.getInstance();
+
+    private static Constructor<?> versatileRobotConstructor;
+    private static Method shuffleMethod;
+    private static Method shuffleWithParamMethod;
+
+    private final MovementType getTypeReturnValue = MovementType.DIAGONAL;
+    private final MovementType getNextTypeReturnValue = MovementType.OVERSTEP;
+    private final int getRandomReturnValue = 1;
+    private final boolean shuffleReturnValue = false;
+
+    private final int x = 0;
+    private final int y = 4;
+    private final boolean order = false;
+    private final boolean exchange = false;
+    private final Context context = contextBuilder()
+        .add("x", x)
+        .add("y", y)
+        .add("order", order)
+        .add("exchange", exchange)
+        .add("super.getType() return value", getTypeReturnValue)
+        .add("super.getNextType() return value", getNextTypeReturnValue)
+        .add("super.getRandom(int) return value", getRandomReturnValue)
+        .add("super.shuffle(int) return value", shuffleReturnValue)
+        .build();
+
     @BeforeAll
     public static void setup() {
         World.setSize(5, 5);
+
+        try {
+            versatileRobotConstructor = VersatileRobot.class.getDeclaredConstructor(int.class, int.class, boolean.class, boolean.class);
+            shuffleMethod = VersatileRobot.class.getDeclaredMethod("shuffle");
+            shuffleWithParamMethod = VersatileRobot.class.getDeclaredMethod("shuffle", int.class);
+        } catch (ReflectiveOperationException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setupEnvironment(Executable executable) throws ReflectiveOperationException {
+        executionHandler.substituteMethod(HackingRobot.class.getDeclaredMethod("getType"),
+            invocation -> getTypeReturnValue);
+        executionHandler.substituteMethod(HackingRobot.class.getDeclaredMethod("getNextType"),
+            invocation -> getNextTypeReturnValue);
+        executionHandler.substituteMethod(HackingRobot.class.getDeclaredMethod("getRandom", int.class),
+            invocation -> getRandomReturnValue);
+        executionHandler.substituteMethod(HackingRobot.class.getDeclaredMethod("shuffle", int.class),
+            invocation -> shuffleReturnValue);
+        executionHandler.substituteMethod(HackingRobot.class.getDeclaredMethod("shuffle"), invocation -> null);
+        executionHandler.disableMethodDelegation(executable);
+    }
+
+    @AfterEach
+    public void tearDown() {
+        executionHandler.resetMethodInvocationLogging();
+        executionHandler.resetMethodSubstitution();
+        executionHandler.resetMethodDelegation();
     }
 
     @Test
     public void testClassHeader() {
-        TypeLink versatileRobotLink = VERSATILE_ROBOT_LINK.get();
+        ClassHeader originalClassHeader = SubmissionExecutionHandler.getOriginalClassHeader(VersatileRobot.class);
 
-        assertTrue((versatileRobotLink.modifiers() & Modifier.PUBLIC) != 0, emptyContext(), result ->
+        assertTrue(Modifier.isPublic(originalClassHeader.access()), emptyContext(), result ->
             "Class VersatileRobot was not declared public");
-        assertEquals(HACKING_ROBOT_LINK.get(), versatileRobotLink.superType(), emptyContext(), result ->
+        assertEquals(Type.getInternalName(HackingRobot.class), originalClassHeader.superName(), emptyContext(), result ->
             "Class VersatileRobot does not extend HackingRobot");
     }
 
     @Test
-    @ExtendWith(JagrExecutionCondition.class)
-    public void testConstructor() {
-        BiFunction<String, Object[], ?> methodAction = (methodName, args) -> switch (methodName) {
-            case "getType" -> "DIAGONAL";
-            case "getNextType" -> "OVERSTEP";
-            case "getRandom" -> 1;
-            case "shuffle" -> false;
-            default -> throw new IllegalStateException("Unexpected method: " + methodName);
-        };
-        HackingRobotClassTransformer.useMock(true);
-        HackingRobotMock.getInstance().setMethodAction(methodAction);
+    public void testConstructor() throws ReflectiveOperationException {
+        setupEnvironment(versatileRobotConstructor);
 
-        int x = 0;
-        int y = 4;
-        boolean order = false;
-        boolean exchange = false;
-        Context context = contextBuilder()
-            .add("x", x)
-            .add("y", y)
-            .add("order", order)
-            .add("exchange", exchange)
-            .add("super.getType() return value", methodAction.apply("getType", new Object[0]))
-            .add("super.getNextType() return value", methodAction.apply("getNextType", new Object[0]))
-            .add("super.getRandom(int) return value", methodAction.apply("getRandom", new Object[0]))
-            .add("super.shuffle(int) return value", methodAction.apply("shuffle", new Object[0]))
-            .build();
-        try {
-            Robot instance = callObject(() -> VERSATILE_ROBOT_CONSTRUCTOR_LINK.get().invoke(x, y, order, exchange), context, result ->
-                "An exception occurred while invoking constructor of class VersatileRobot");
+        VersatileRobot instance = callObject(() -> new VersatileRobot(x, y, order, exchange), context, result ->
+            "An exception occurred while invoking constructor of class VersatileRobot");
 
-            assertEquals(x, instance.getX(), context, result -> "The x-coordinate of this VersatileRobot is incorrect");
-            assertEquals(x, instance.getY(), context, result -> "The y-coordinate of this VersatileRobot is incorrect");
-        } finally {
-            HackingRobotClassTransformer.useMock(false);
-        }
+        assertEquals(x, instance.getX(), context, result -> "The x-coordinate of this VersatileRobot is incorrect");
+        assertEquals(x, instance.getY(), context, result -> "The y-coordinate of this VersatileRobot is incorrect");
     }
 
     @Test
-    @ExtendWith(JagrExecutionCondition.class)
-    public void testShuffleWithParams() {
-        BiFunction<String, Object[], ?> methodAction = (methodName, args) -> switch (methodName) {
-            case "getType" -> "DIAGONAL";
-            case "getNextType" -> "OVERSTEP";
-            case "getRandom" -> 1;
-            case "shuffle" -> false;
-            default -> throw new IllegalStateException("Unexpected method: " + methodName);
-        };
-        HackingRobotClassTransformer.useMock(true);
-        HackingRobotMock.getInstance().setMethodAction(methodAction);
+    public void testShuffleWithParams() throws ReflectiveOperationException {
+        setupEnvironment(shuffleWithParamMethod);
 
-        int x = 0;
-        int y = 4;
-        boolean order = false;
-        boolean exchange = false;
-        Context context = contextBuilder()
-            .add("x", x)
-            .add("y", y)
-            .add("order", order)
-            .add("exchange", exchange)
-            .add("super.getType() return value", methodAction.apply("getType", new Object[0]))
-            .add("super.getNextType() return value", methodAction.apply("getNextType", new Object[0]))
-            .add("super.getRandom(int) return value", methodAction.apply("getRandom", new Object[0]))
-            .add("super.shuffle(int) return value", methodAction.apply("shuffle", new Object[0]))
-            .build();
-        try {
-            Robot instance = callObject(() -> VERSATILE_ROBOT_CONSTRUCTOR_LINK.get().invoke(x, y, order, exchange), context, result ->
-                "An exception occurred while invoking constructor of class VersatileRobot");
-            instance.setY(y);
-            call(() -> VERSATILE_ROBOT_SHUFFLE1_LINK.get().invoke(instance, 1), context, result ->
-                "An exception occurred while invoking shuffle(int)");
+        VersatileRobot instance = callObject(() -> new VersatileRobot(x, y, order, exchange), context, result ->
+            "An exception occurred while invoking constructor of class VersatileRobot");
+        instance.setY(y);
+        call(() -> instance.shuffle(1), context, result -> "An exception occurred while invoking shuffle(int)");
 
-            assertEquals(x, instance.getX(), context, result -> "The x-coordinate of this VersatileRobot is incorrect");
-            assertEquals(x, instance.getY(), context, result -> "The y-coordinate of this VersatileRobot is incorrect");
-        } finally {
-            HackingRobotClassTransformer.useMock(false);
-        }
+        assertEquals(x, instance.getX(), context, result -> "The x-coordinate of this VersatileRobot is incorrect");
+        assertEquals(x, instance.getY(), context, result -> "The y-coordinate of this VersatileRobot is incorrect");
     }
 
     @Test
-    @ExtendWith(JagrExecutionCondition.class)
-    public void testShuffleNoParams() {
-        BiFunction<String, Object[], ?> methodAction = (methodName, args) -> switch (methodName) {
-            case "getType" -> "DIAGONAL";
-            case "getNextType" -> "OVERSTEP";
-            case "getRandom" -> 1;
-            case "shuffle" -> false;
-            default -> throw new IllegalStateException("Unexpected method: " + methodName);
-        };
-        HackingRobotClassTransformer.useMock(true);
-        HackingRobotMock.getInstance().setMethodAction(methodAction);
+    public void testShuffleNoParams() throws ReflectiveOperationException {
+        setupEnvironment(shuffleMethod);
 
-        int x = 0;
-        int y = 4;
-        boolean order = false;
-        boolean exchange = false;
-        Context context = contextBuilder()
-            .add("x", x)
-            .add("y", y)
-            .add("order", order)
-            .add("exchange", exchange)
-            .add("super.getType() return value", methodAction.apply("getType", new Object[0]))
-            .add("super.getNextType() return value", methodAction.apply("getNextType", new Object[0]))
-            .add("super.getRandom(int) return value", methodAction.apply("getRandom", new Object[0]))
-            .add("super.shuffle(int) return value", methodAction.apply("shuffle", new Object[0]))
-            .build();
-        try {
-            Robot instance = callObject(() -> VERSATILE_ROBOT_CONSTRUCTOR_LINK.get().invoke(x, y, order, exchange), context, result ->
-                "An exception occurred while invoking constructor of class VersatileRobot");
-            instance.setY(y);
-            call(() -> VERSATILE_ROBOT_SHUFFLE2_LINK.get().invoke(instance), context, result ->
-                "An exception occurred while invoking shuffle()");
+        VersatileRobot instance = callObject(() -> new VersatileRobot(x, y, order, exchange), context, result ->
+            "An exception occurred while invoking constructor of class VersatileRobot");
+        instance.setY(y);
+        call(instance::shuffle, context, result -> "An exception occurred while invoking shuffle()");
 
-            assertEquals(x, instance.getX(), context, result -> "The x-coordinate of this VersatileRobot is incorrect");
-            assertEquals(x, instance.getY(), context, result -> "The y-coordinate of this VersatileRobot is incorrect");
-        } finally {
-            HackingRobotClassTransformer.useMock(false);
-        }
+        assertEquals(x, instance.getX(), context, result -> "The x-coordinate of this VersatileRobot is incorrect");
+        assertEquals(x, instance.getY(), context, result -> "The y-coordinate of this VersatileRobot is incorrect");
     }
 }
