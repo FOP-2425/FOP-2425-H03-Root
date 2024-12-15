@@ -8,11 +8,9 @@ import h03.h3_3.RobotsChallengeTest;
 import org.sourcegrade.jagr.api.rubric.*;
 import org.sourcegrade.jagr.api.testing.RubricConfiguration;
 import org.tudalgo.algoutils.transform.SolutionMergingClassTransformer;
-import org.tudalgo.algoutils.transform.util.MethodHeader;
+import org.tudalgo.algoutils.transform.util.headers.MethodHeader;
 import org.tudalgo.algoutils.tutor.general.json.JsonParameterSet;
 
-import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
-import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.tudalgo.algoutils.tutor.general.jagr.RubricUtils.criterion;
 import static org.tudalgo.algoutils.tutor.general.jagr.RubricUtils.manualGrader;
 
@@ -272,25 +270,26 @@ public class H03_RubricProvider implements RubricProvider {
 
     @Override
     public void configure(RubricConfiguration configuration) {
-        configuration.addTransformer(new SolutionMergingClassTransformer.Builder("h03",
-                "h03.Main",
-                "h03.RobotsChallenge",
-                "h03.robots.DoublePowerRobot",
-                "h03.robots.HackingRobot",
-                "h03.robots.MovementType",
-                "h03.robots.VersatileRobot")
+        configuration.addTransformer(() -> new SolutionMergingClassTransformer.Builder("h03")
+            .addSolutionClass("h03.Main")
+            .addSolutionClass("h03.RobotsChallenge", "h03.robots.RobotsChallenge", "robots.RobotsChallenge")
+            .addSolutionClass("h03.robots.DoublePowerRobot", "h03.DoublePowerRobot", "robot.DoublePowerRobot")
+            .addSolutionClass("h03.robots.HackingRobot", "h03.HackingRobot", "robot.HackingRobot")
+            .addSolutionClass("h03.robots.MovementType", "h03.MovementType", "robot.MovementType")
+            .addSolutionClass("h03.robots.VersatileRobot", "h03.VersatileRobot", "robot.VersatileRobot")
             .addMethodReplacement(
-                new MethodHeader("java/lang/Math", 0, "min", "(II)I", null, null),
-                new MethodHeader("h03/MathMinMock", ACC_PUBLIC | ACC_STATIC, "min", "(II)I", null, null))
+                MethodHeader.of(Math.class, "min", int.class, int.class),
+                MethodHeader.of(MathMinMock.class, "min", int.class, int.class))
             .addMethodReplacement(
-                new MethodHeader("java/lang/Math", 0, "min", "(FF)F", null, null),
-                new MethodHeader("h03/MathMinMock", ACC_PUBLIC | ACC_STATIC, "min", "(FF)F", null, null))
+                MethodHeader.of(Math.class, "min", float.class, float.class),
+                MethodHeader.of(MathMinMock.class, "min", float.class, float.class))
             .addMethodReplacement(
-                new MethodHeader("java/lang/Math", 0, "min", "(JJ)J", null, null),
-                new MethodHeader("h03/MathMinMock", ACC_PUBLIC | ACC_STATIC, "min", "(JJ)J", null, null))
+                MethodHeader.of(Math.class, "min", long.class, long.class),
+                MethodHeader.of(MathMinMock.class, "min", long.class, long.class))
             .addMethodReplacement(
-                new MethodHeader("java/lang/Math", 0, "min", "(DD)D", null, null),
-                new MethodHeader("h03/MathMinMock", ACC_PUBLIC | ACC_STATIC, "min", "(DD)D", null, null))
+                MethodHeader.of(Math.class, "min", double.class, double.class),
+                MethodHeader.of(MathMinMock.class, "min", double.class, double.class))
+            .setSimilarity(0.80)
             .build());
     }
 }

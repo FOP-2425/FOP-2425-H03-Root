@@ -2,7 +2,6 @@ package h03.h3_1;
 
 import fopbot.Robot;
 import fopbot.World;
-import h03.TestConstants;
 import h03.robots.HackingRobot;
 import h03.robots.MovementType;
 import kotlin.Triple;
@@ -10,77 +9,40 @@ import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.objectweb.asm.Type;
 import org.sourcegrade.jagr.api.rubric.TestForSubmission;
-import org.tudalgo.algoutils.transform.SubmissionExecutionHandler;
-import org.tudalgo.algoutils.transform.util.ClassHeader;
-import org.tudalgo.algoutils.transform.util.FieldHeader;
-import org.tudalgo.algoutils.transform.util.MethodHeader;
+import org.tudalgo.algoutils.transform.util.headers.ClassHeader;
+import org.tudalgo.algoutils.transform.util.headers.FieldHeader;
+import org.tudalgo.algoutils.transform.util.headers.MethodHeader;
 import org.tudalgo.algoutils.tutor.general.assertions.Context;
 
 import java.lang.reflect.*;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
+import static org.tudalgo.algoutils.transform.SubmissionExecutionHandler.*;
 import static org.tudalgo.algoutils.tutor.general.assertions.Assertions2.*;
 
 @TestForSubmission
-@Timeout(
-    value = TestConstants.TEST_TIMEOUT_IN_SECONDS,
-    unit = TimeUnit.SECONDS,
-    threadMode = Timeout.ThreadMode.SEPARATE_THREAD
-)
 public class HackingRobotTest {
-
-    private final SubmissionExecutionHandler executionHandler = SubmissionExecutionHandler.getInstance();
-
-    private static Field typeField;
-    private static Field robotTypesField;
-    private static Constructor<?> hackingRobotConstructor;
-    private static Method getTypeMethod;
-    private static Method getNextTypeMethod;
-    private static Method getRandomMethod;
-    private static Method shuffleMethod;
-    private static Method shuffleWithParamMethod;
 
     @BeforeAll
     public static void setup() {
         World.setSize(5, 5);
-
-        try {
-            typeField = HackingRobot.class.getDeclaredField("type");
-            robotTypesField = HackingRobot.class.getDeclaredField("robotTypes");
-            hackingRobotConstructor = HackingRobot.class.getDeclaredConstructor(int.class, int.class, boolean.class);
-            getTypeMethod = HackingRobot.class.getDeclaredMethod("getType");
-            getNextTypeMethod = HackingRobot.class.getDeclaredMethod("getNextType");
-            getRandomMethod = HackingRobot.class.getDeclaredMethod("getRandom", int.class);
-            shuffleMethod = HackingRobot.class.getDeclaredMethod("shuffle");
-            shuffleWithParamMethod = HackingRobot.class.getDeclaredMethod("shuffle", int.class);
-
-            typeField.setAccessible(true);
-            robotTypesField.setAccessible(true);
-        } catch (ReflectiveOperationException e) {
-            e.printStackTrace();
-        }
     }
 
     @AfterEach
     public void tearDown() {
-        executionHandler.resetMethodInvocationLogging();
-        executionHandler.resetMethodSubstitution();
-        executionHandler.resetMethodDelegation();
+        resetAll();
     }
 
     @Test
     public void testClassHeader() {
-        ClassHeader originalClassHeader = SubmissionExecutionHandler.getOriginalClassHeader(HackingRobot.class);
+        ClassHeader originalClassHeader = getOriginalClassHeader(HackingRobot.class);
 
         assertTrue(Modifier.isPublic(originalClassHeader.access()), emptyContext(), result ->
             "Class HackingRobot is not declared public");
@@ -89,27 +51,21 @@ public class HackingRobotTest {
     }
 
     @Test
-    public void testFields() throws NoSuchFieldException {
-        Set<FieldHeader> originalFieldHeaders = SubmissionExecutionHandler.getOriginalFieldHeaders(HackingRobot.class);
+    public void testFields() {
+        FieldHeader type = assertNotNull(getOriginalFieldHeader(HackingRobot.class, "type"), emptyContext(),
+            result -> "Field 'type' does not exist");
+        assertTrue(Modifier.isPrivate(type.modifiers()), emptyContext(), result ->
+            "Field 'type' in HackingRobot is not declared private");
+        assertFalse(Modifier.isStatic(type.modifiers()), emptyContext(), result ->
+            "Field 'type' in HackingRobot is declared static");
+        assertEquals(Type.getDescriptor(MovementType.class), type.descriptor(), emptyContext(), result ->
+            "Field 'type' in HackingRobot does not have correct type");
 
-        FieldHeader typeFieldHeader = originalFieldHeaders.stream()
-            .filter(fieldHeader -> fieldHeader.name().equals("type"))
-            .findFirst()
-            .orElseThrow(() -> new NoSuchFieldException("Field 'type' does not exist"));
-        assertTrue(Modifier.isPrivate(typeFieldHeader.access()), emptyContext(), result ->
-            "Field type in HackingRobot is not declared private");
-        assertFalse(Modifier.isStatic(typeFieldHeader.access()), emptyContext(), result ->
-            "Field type in HackingRobot is declared static");
-        assertEquals(Type.getDescriptor(MovementType.class), typeFieldHeader.descriptor(), emptyContext(), result ->
-            "Field type in HackingRobot does not have correct type");
-
-        FieldHeader robotTypes = originalFieldHeaders.stream()
-            .filter(fieldHeader -> fieldHeader.name().equals("robotTypes"))
-            .findFirst()
-            .orElseThrow(() -> new NoSuchFieldException("Field 'robotTypes' does not exist"));
-        assertTrue(Modifier.isPrivate(robotTypes.access()), emptyContext(), result ->
+        FieldHeader robotTypes = assertNotNull(getOriginalFieldHeader(HackingRobot.class, "robotTypes"), emptyContext(),
+            result -> "Field 'robotTypes' does not exist");
+        assertTrue(Modifier.isPrivate(robotTypes.modifiers()), emptyContext(), result ->
             "Field robotTypes in HackingRobot is not declared private");
-        assertFalse(Modifier.isStatic(robotTypes.access()), emptyContext(), result ->
+        assertFalse(Modifier.isStatic(robotTypes.modifiers()), emptyContext(), result ->
             "Field robotTypes in HackingRobot is declared static");
         assertEquals(Type.getDescriptor(MovementType[].class), robotTypes.descriptor(), emptyContext(), result ->
             "Field robotTypes in HackingRobot does not have correct type");
@@ -118,21 +74,17 @@ public class HackingRobotTest {
     }
 
     @Test
-    public void testConstructorHeader() throws NoSuchMethodException {
-        MethodHeader constructorMethodHeader = new MethodHeader(hackingRobotConstructor);
-        MethodHeader originalConstructorHeader = SubmissionExecutionHandler.getOriginalMethodHeaders(HackingRobot.class)
-            .stream()
-            .filter(constructorMethodHeader::equals)
-            .findFirst()
-            .orElseThrow(() -> new NoSuchMethodException("Constructor 'HackingRobot(int, int, boolean)' does not exist"));
-
-        assertTrue(Modifier.isPublic(originalConstructorHeader.access()), emptyContext(), result ->
+    public void testConstructorHeader() {
+        MethodHeader constructor = assertNotNull(getOriginalMethodHeader(HackingRobot.class, int.class, int.class, boolean.class),
+            emptyContext(),
+            result -> "Constructor 'HackingRobot(int, int, boolean)' does not exist");
+        assertTrue(Modifier.isPublic(constructor.modifiers()), emptyContext(), result ->
             "Constructor 'HackingRobot(int, int, boolean)' is not declared public");
     }
 
     @Test
     public void testConstructorSuperCall() {
-        executionHandler.disableMethodDelegation(hackingRobotConstructor);
+        Delegation.disable(MethodHeader.of(HackingRobot.class, int.class, int.class, boolean.class));
 
         int x = 2;
         int y = 2;
@@ -150,8 +102,8 @@ public class HackingRobotTest {
 
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
-    public void testConstructorSetsFields(boolean order) throws ReflectiveOperationException {
-        executionHandler.disableMethodDelegation(hackingRobotConstructor);
+    public void testConstructorSetsFields(boolean order) {
+        Delegation.disable(MethodHeader.of(HackingRobot.class, int.class, int.class, boolean.class));
 
         List<String> expectedRobotTypes = order ?
             List.of("DIAGONAL", "TELEPORT", "OVERSTEP") :
@@ -165,7 +117,7 @@ public class HackingRobotTest {
         Context context = contextBuilder.add("HackingRobot instance", hackingRobotInstance).build();
 
         assertEquals(expectedRobotTypes,
-            Arrays.stream((MovementType[]) robotTypesField.get(hackingRobotInstance))
+            Arrays.stream(FieldHeader.of(HackingRobot.class, "robotTypes").<MovementType[]>getValue(hackingRobotInstance))
                 .map(Enum::name)
                 .toList(),
             context,
@@ -173,8 +125,8 @@ public class HackingRobotTest {
     }
 
     @Test
-    public void testGetType() throws ReflectiveOperationException {
-        executionHandler.disableMethodDelegation(getTypeMethod);
+    public void testGetType() {
+        Delegation.disable(MethodHeader.of(HackingRobot.class, "getType"));
 
         int x = 2;
         int y = 2;
@@ -185,7 +137,7 @@ public class HackingRobotTest {
         Context baseContext = contextBuilder.add("HackingRobot instance", hackingRobotInstance).build();
 
         for (MovementType movementType : MovementType.values()) {
-            typeField.set(hackingRobotInstance, movementType);
+            FieldHeader.of(HackingRobot.class, "type").setValue(hackingRobotInstance, movementType);
             Context context = contextBuilder()
                 .add(baseContext)
                 .add("Field 'type'", movementType)
@@ -197,13 +149,13 @@ public class HackingRobotTest {
 
     @ParameterizedTest
     @ValueSource(ints = {0, 1, 2})
-    public void testGetNextTypeNoMod(int offset) throws ReflectiveOperationException {
+    public void testGetNextTypeNoMod(int offset) {
         testGetNextTypeMod(offset);
     }
 
     @ParameterizedTest
     @ValueSource(ints = {3, 4, 5, 6})
-    public void testGetNextTypeMod(int offset) throws ReflectiveOperationException {
+    public void testGetNextTypeMod(int offset) {
         testGetNextType(offset);
     }
 
@@ -234,17 +186,19 @@ public class HackingRobotTest {
 
     @ParameterizedTest
     @ValueSource(ints = {0, 1, 2})
-    public void testShuffleWithParams_SetField(int index) throws ReflectiveOperationException {
+    public void testShuffleWithParams_SetField(int index) {
         MovementType[] movementTypeConstants = MovementType.values();
         Triple<Context, HackingRobot, Boolean> invocationResult = testShuffleWithParams(index);
 
-        assertEquals(movementTypeConstants[index], typeField.get(invocationResult.getSecond()), invocationResult.getFirst(), result ->
-            "Field 'type' in HackingRobot was not set to the correct value");
+        assertEquals(movementTypeConstants[index],
+            FieldHeader.of(HackingRobot.class, "type").getValue(invocationResult.getSecond()),
+            invocationResult.getFirst(),
+            result -> "Field 'type' in HackingRobot was not set to the correct value");
     }
 
     @ParameterizedTest
     @ValueSource(ints = {0, 1, 2})
-    public void testShuffleWithParams_ReturnValue(int index) throws ReflectiveOperationException {
+    public void testShuffleWithParams_ReturnValue(int index) {
         Triple<Context, HackingRobot, Boolean> invocationResult = testShuffleWithParams(index);
 
         assertEquals(index != 0, invocationResult.getThird(), invocationResult.getFirst(), result ->
@@ -252,25 +206,22 @@ public class HackingRobotTest {
     }
 
     @Test
-    public void testShuffleNoParams() throws NoSuchMethodException {
+    public void testShuffleNoParams() {
         // Header
-        MethodHeader shuffleMethodHeader = new MethodHeader(shuffleMethod);
-        MethodHeader originalMethodHeader = SubmissionExecutionHandler.getOriginalMethodHeaders(HackingRobot.class)
-            .stream()
-            .filter(shuffleMethodHeader::equals)
-            .findFirst()
-            .orElseThrow(() -> new NoSuchMethodException("Method 'shuffle()' does not exist"));
+        MethodHeader shuffle = assertNotNull(getOriginalMethodHeader(HackingRobot.class, "shuffle"), emptyContext(),
+            result -> "Method 'shuffle()' does not exist");
 
-        assertTrue(Modifier.isPublic(originalMethodHeader.access()), emptyContext(), result ->
+        assertTrue(Modifier.isPublic(shuffle.modifiers()), emptyContext(), result ->
             "Method 'shuffle()' in HackingRobot was not declared public");
-        assertEquals(Type.VOID_TYPE, Type.getReturnType(originalMethodHeader.descriptor()), emptyContext(), result ->
+        assertEquals(Type.VOID_TYPE, Type.getReturnType(shuffle.descriptor()), emptyContext(), result ->
             "Method 'shuffle()' has incorrect return type");
 
         // Body
         int limit = 5;
         AtomicInteger counter = new AtomicInteger(0);
-        executionHandler.disableMethodDelegation(shuffleMethod);
-        executionHandler.substituteMethod(shuffleWithParamMethod, invocation -> counter.incrementAndGet() >= limit);
+        Delegation.disable(MethodHeader.of(HackingRobot.class, "shuffle"));
+        Substitution.enable(MethodHeader.of(HackingRobot.class, "shuffle", int.class),
+            invocation -> counter.incrementAndGet() >= limit);
 
         Context.Builder<?> contextBuilder = contextBuilder()
             .add("x", 0)
@@ -324,8 +275,8 @@ public class HackingRobotTest {
         return hackingRobotInstance;
     }
 
-    private void testGetNextType(int offset) throws ReflectiveOperationException {
-        executionHandler.disableMethodDelegation(getNextTypeMethod);
+    private void testGetNextType(int offset) {
+        Delegation.disable(MethodHeader.of(HackingRobot.class, "getNextType"));
 
         int x = 2;
         int y = 2;
@@ -340,17 +291,19 @@ public class HackingRobotTest {
             .add("Field 'robotTypes'", movementTypeConstants)
             .build();
 
-        typeField.set(hackingRobotInstance, movementTypeConstants[offset % movementTypeConstants.length]);
-        robotTypesField.set(hackingRobotInstance, movementTypeConstants);
+        FieldHeader.of(HackingRobot.class, "type")
+            .setValue(hackingRobotInstance, movementTypeConstants[offset % movementTypeConstants.length]);
+        FieldHeader.of(HackingRobot.class, "robotTypes")
+            .setValue(hackingRobotInstance, movementTypeConstants);
         assertCallEquals(movementTypeConstants[(offset + 1) % movementTypeConstants.length],
             hackingRobotInstance::getNextType,
             context,
             result -> "The value returned by 'getNextType()' is incorrect");
     }
 
-    private Triple<Context, HackingRobot, Boolean> testShuffleWithParams(int index) throws ReflectiveOperationException {
-        executionHandler.substituteMethod(getRandomMethod, invocation -> index);
-        executionHandler.disableMethodDelegation(shuffleWithParamMethod);
+    private Triple<Context, HackingRobot, Boolean> testShuffleWithParams(int index) {
+        Substitution.enable(MethodHeader.of(HackingRobot.class, "getRandom", int.class), invocation -> index);
+        Delegation.disable(MethodHeader.of(HackingRobot.class, "shuffle", int.class));
 
         MovementType[] movementTypeConstants = MovementType.values();
         Context.Builder<?> contextBuilder = contextBuilder()
@@ -359,8 +312,8 @@ public class HackingRobotTest {
         HackingRobot hackingRobotInstance = getHackingRobotInstance(0, 0, null, contextBuilder);
         contextBuilder.add("HackingRobot instance", hackingRobotInstance);
 
-        typeField.set(hackingRobotInstance, movementTypeConstants[0]);
-        robotTypesField.set(hackingRobotInstance, movementTypeConstants);
+        FieldHeader.of(HackingRobot.class, "type").setValue(hackingRobotInstance, movementTypeConstants[0]);
+        FieldHeader.of(HackingRobot.class, "robotTypes").setValue(hackingRobotInstance, movementTypeConstants);
         Context context = contextBuilder
             .add("Field 'type'", movementTypeConstants[0])
             .add("Field 'robotTypes'", movementTypeConstants)

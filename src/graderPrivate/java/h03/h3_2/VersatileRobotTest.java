@@ -1,41 +1,25 @@
 package h03.h3_2;
 
 import fopbot.World;
-import h03.TestConstants;
 import h03.robots.HackingRobot;
 import h03.robots.MovementType;
 import h03.robots.VersatileRobot;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Timeout;
 import org.objectweb.asm.Type;
 import org.sourcegrade.jagr.api.rubric.TestForSubmission;
-import org.tudalgo.algoutils.transform.SubmissionExecutionHandler;
-import org.tudalgo.algoutils.transform.util.ClassHeader;
+import org.tudalgo.algoutils.transform.util.headers.ClassHeader;
+import org.tudalgo.algoutils.transform.util.headers.MethodHeader;
 import org.tudalgo.algoutils.tutor.general.assertions.Context;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.concurrent.TimeUnit;
 
+import static org.tudalgo.algoutils.transform.SubmissionExecutionHandler.*;
 import static org.tudalgo.algoutils.tutor.general.assertions.Assertions2.*;
 
 @TestForSubmission
-@Timeout(
-    value = TestConstants.TEST_TIMEOUT_IN_SECONDS,
-    unit = TimeUnit.SECONDS,
-    threadMode = Timeout.ThreadMode.SEPARATE_THREAD
-)
 public class VersatileRobotTest {
-
-    private final SubmissionExecutionHandler executionHandler = SubmissionExecutionHandler.getInstance();
-
-    private static Constructor<?> versatileRobotConstructor;
-    private static Method shuffleMethod;
-    private static Method shuffleWithParamMethod;
 
     private final MovementType getTypeReturnValue = MovementType.DIAGONAL;
     private final MovementType getNextTypeReturnValue = MovementType.OVERSTEP;
@@ -60,39 +44,25 @@ public class VersatileRobotTest {
     @BeforeAll
     public static void setup() {
         World.setSize(5, 5);
-
-        try {
-            versatileRobotConstructor = VersatileRobot.class.getDeclaredConstructor(int.class, int.class, boolean.class, boolean.class);
-            shuffleMethod = VersatileRobot.class.getDeclaredMethod("shuffle");
-            shuffleWithParamMethod = VersatileRobot.class.getDeclaredMethod("shuffle", int.class);
-        } catch (ReflectiveOperationException e) {
-            e.printStackTrace();
-        }
     }
 
-    private void setupEnvironment(Executable executable) throws ReflectiveOperationException {
-        executionHandler.substituteMethod(HackingRobot.class.getDeclaredMethod("getType"),
-            invocation -> getTypeReturnValue);
-        executionHandler.substituteMethod(HackingRobot.class.getDeclaredMethod("getNextType"),
-            invocation -> getNextTypeReturnValue);
-        executionHandler.substituteMethod(HackingRobot.class.getDeclaredMethod("getRandom", int.class),
-            invocation -> getRandomReturnValue);
-        executionHandler.substituteMethod(HackingRobot.class.getDeclaredMethod("shuffle", int.class),
-            invocation -> shuffleReturnValue);
-        executionHandler.substituteMethod(HackingRobot.class.getDeclaredMethod("shuffle"), invocation -> null);
-        executionHandler.disableMethodDelegation(executable);
+    private void setupEnvironment(MethodHeader methodHeader) {
+        Substitution.enable(MethodHeader.of(HackingRobot.class, "getType"), invocation -> getTypeReturnValue);
+        Substitution.enable(MethodHeader.of(HackingRobot.class, "getNextType"), invocation -> getNextTypeReturnValue);
+        Substitution.enable(MethodHeader.of(HackingRobot.class, "getRandom", int.class), invocation -> getRandomReturnValue);
+        Substitution.enable(MethodHeader.of(HackingRobot.class, "shuffle", int.class), invocation -> shuffleReturnValue);
+        Substitution.enable(MethodHeader.of(HackingRobot.class, "shuffle"), invocation -> null);
+        Delegation.disable(methodHeader);
     }
 
     @AfterEach
     public void tearDown() {
-        executionHandler.resetMethodInvocationLogging();
-        executionHandler.resetMethodSubstitution();
-        executionHandler.resetMethodDelegation();
+        resetAll();
     }
 
     @Test
     public void testClassHeader() {
-        ClassHeader originalClassHeader = SubmissionExecutionHandler.getOriginalClassHeader(VersatileRobot.class);
+        ClassHeader originalClassHeader = getOriginalClassHeader(VersatileRobot.class);
 
         assertTrue(Modifier.isPublic(originalClassHeader.access()), emptyContext(), result ->
             "Class VersatileRobot was not declared public");
@@ -101,8 +71,8 @@ public class VersatileRobotTest {
     }
 
     @Test
-    public void testConstructor() throws ReflectiveOperationException {
-        setupEnvironment(versatileRobotConstructor);
+    public void testConstructor() {
+        setupEnvironment(MethodHeader.of(VersatileRobot.class, int.class, int.class, boolean.class, boolean.class));
 
         VersatileRobot instance = callObject(() -> new VersatileRobot(x, y, order, exchange), context, result ->
             "An exception occurred while invoking constructor of class VersatileRobot");
@@ -112,8 +82,8 @@ public class VersatileRobotTest {
     }
 
     @Test
-    public void testShuffleWithParams() throws ReflectiveOperationException {
-        setupEnvironment(shuffleWithParamMethod);
+    public void testShuffleWithParams() {
+        setupEnvironment(MethodHeader.of(VersatileRobot.class, "shuffle", int.class));
 
         VersatileRobot instance = callObject(() -> new VersatileRobot(x, y, order, exchange), context, result ->
             "An exception occurred while invoking constructor of class VersatileRobot");
@@ -125,8 +95,8 @@ public class VersatileRobotTest {
     }
 
     @Test
-    public void testShuffleNoParams() throws ReflectiveOperationException {
-        setupEnvironment(shuffleMethod);
+    public void testShuffleNoParams() {
+        setupEnvironment(MethodHeader.of(VersatileRobot.class, "shuffle"));
 
         VersatileRobot instance = callObject(() -> new VersatileRobot(x, y, order, exchange), context, result ->
             "An exception occurred while invoking constructor of class VersatileRobot");
