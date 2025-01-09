@@ -26,12 +26,17 @@ submission {
 }
 
 dependencies {
+    implementation(libs.algoutils.student)
     implementation(libs.fopbot)
 }
 
 jagr {
     graders {
-        val graderPublic by getting
+        val graderPublic by getting {
+            configureDependencies {
+                implementation(libs.algoutils.tutor)
+            }
+        }
         val graderPrivate by creating {
             parent(graderPublic)
             graderName.set("FOP-2425-H03-Private")
